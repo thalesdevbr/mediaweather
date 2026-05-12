@@ -1,5 +1,19 @@
 {
+  "name": "mediaweather",
+  "version": "1.0.0",
+  "description": "Weather and safety analysis app for Rio de Janeiro coastal regions",
+  "main": "mediaweather/index.js",
+  "scripts": {
+    "start": "node mediaweather/index.js",
+    "dev": "node mediaweather/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "firebase": "^12.13.0",
     "node-fetch": "^3.3.2"
   }
 }
+

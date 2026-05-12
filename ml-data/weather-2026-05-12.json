@@ -1,0 +1,32 @@
+[
+  {
+    "timestamp": "2026-05-12T14:41:30.249Z",
+    "weather": {
+      "temperature": 23,
+      "humidity": 53,
+      "windSpeed": 4.8,
+      "precipitation": 0,
+      "weatherCode": 0,
+      "time": "2026-05-12T11:30"
+    },
+    "riskAssessment": {
+      "riskScore": 0,
+      "riskLevel": "MINIMAL",
+      "factors": [],
+      "recommendation": "IDEAL: Excellent conditions for all types of activities."
+    },
+    "location": {
+      "region": "Zona Sul (South Zone)",
+      "zone": "South Coast",
+      "latitude": -23.0285,
+      "longitude": -43.1961,
+      "activities": [
+        "Beach",
+        "Hiking",
+        "Climbing",
+        "Water Sports"
+      ],
+      "description": "Iconic beaches and mountain trails near the city"
+    }
+  }
+]

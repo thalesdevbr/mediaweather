@@ -1,5 +1,6 @@
 // Coastal regions selection and management
-const regionButtons = document.querySelectorAll('.region-btn');
+const regionsContainer = document.querySelector('.regions-list');
+let regionButtons = [];
 const cityNameDisplay = document.getElementById('city-name');
 const tempDisplay = document.querySelector('.temp-value');
 const conditionDisplay = document.getElementById('weather-condition');
@@ -9,8 +10,8 @@ const zoneDisplay = document.getElementById('zone-type');
 const activitiesDisplay = document.getElementById('region-activities');
 const descriptionDisplay = document.getElementById('region-description');
 
-// API Base URL
-const API_BASE_URL = 'http://localhost:3000/api';
+// API Base URL (relative path for same-origin deployment)
+const API_BASE_URL = '/api';
 
 // Current selected region
 let currentRegion = 'Zona Sul';
@@ -168,24 +169,40 @@ function displayError(message) {
     conditionDisplay.textContent = message;
 }
 
-// Add click event to region buttons
-regionButtons.forEach(button => {
-    button.addEventListener('click', function() {
-        // Remove active class from all buttons
-        regionButtons.forEach(btn => btn.classList.remove('active'));
-        
-        // Add active class to clicked button
-        this.classList.add('active');
-        
-        // Update current region
-        currentRegion = this.dataset.region;
-        
-        // Fetch weather and ML safety data
-        fetchWeatherData(currentRegion);
+function bindRegionButtons() {
+    regionButtons = document.querySelectorAll('.region-btn');
+    regionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            regionButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            currentRegion = this.dataset.region;
+            fetchWeatherData(currentRegion);
+        });
     });
-});
-
-// Initialize - select Zona Sul by default and fetch data
-if (regionButtons.length > 0) {
-    regionButtons[0].click();
 }
+
+async function loadRegions() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/regions`);
+        if (!response.ok) throw new Error('Failed to load region list');
+
+        const result = await response.json();
+        if (!result.success) throw new Error('Invalid region response');
+
+        regionsContainer.innerHTML = result.data.map((region, index) => {
+            return `<button class="region-btn${index === 0 ? ' active' : ''}" data-region="${region.name}">${region.name}</button>`;
+        }).join('');
+
+        bindRegionButtons();
+
+        if (regionButtons.length > 0) {
+            currentRegion = regionButtons[0].dataset.region;
+            regionButtons[0].click();
+        }
+    } catch (error) {
+        console.error('Error loading regions:', error);
+        regionsContainer.innerHTML = '<p>Unable to load regions.</p>';
+    }
+}
+
+loadRegions();

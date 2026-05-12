@@ -1,9 +1,8 @@
-// Configuração inicial do servidor Express e Firebase
+// Configuração inicial do servidor Express
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { initializeApp, applicationDefault } = require('firebase-admin/app');
 
 // Import weather and ML routes
 const weatherRoutes = require('../routes/weatherRoutes');
@@ -15,11 +14,12 @@ app.use(express.json());
 // Serve static files
 app.use(express.static(path.join(__dirname)));
 
-// Inicialização do Firebase Admin SDK
-initializeApp({
-  credential: applicationDefault(),
-  // databaseURL: 'https://<YOUR_PROJECT_ID>.firebaseio.com' // Descomente e ajuste se necessário
-});
+// TODO: Configurar Firebase Admin SDK quando necessário
+// const { initializeApp, applicationDefault } = require('firebase-admin/app');
+// initializeApp({
+//   credential: applicationDefault(),
+//   databaseURL: 'https://<YOUR_PROJECT_ID>.firebaseio.com'
+// });
 
 // Health check
 app.get('/', (req, res) => {
