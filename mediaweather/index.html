@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaWeather - Weather App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Left Section: Map Placeholder -->
+        <div class="section map-section">
+            <div class="map-placeholder">
+                <p>Map goes here</p>
+            </div>
+        </div>
+
+        <!-- Center Section: Weather Display -->
+        <div class="section weather-section">
+            <div class="weather-card">
+                <div class="weather-header">
+                    <h1>Weather Details</h1>
+                </div>
+                <div class="weather-content">
+                    <div class="temperature-display">
+                        <span class="temp-value">--°C</span>
+                    </div>
+                    <div class="weather-info">
+                        <p><strong>City:</strong> <span id="city-name">Select a city</span></p>
+                        <p><strong>Condition:</strong> <span id="weather-condition">--</span></p>
+                        <p><strong>Humidity:</strong> <span id="humidity">--%</span></p>
+                        <p><strong>Wind Speed:</strong> <span id="wind-speed">-- km/h</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: City Selector -->
+        <div class="section cities-section">
+            <div class="cities-panel">
+                <h2>Select City</h2>
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        id="city-search" 
+                        placeholder="Search city..." 
+                        class="city-search"
+                    >
+                </div>
+                <div class="cities-list">
+                    <button class="city-btn" data-city="São Paulo">São Paulo</button>
+                    <button class="city-btn" data-city="Rio de Janeiro">Rio de Janeiro</button>
+                    <button class="city-btn" data-city="Belo Horizonte">Belo Horizonte</button>
+                    <button class="city-btn" data-city="Brasília">Brasília</button>
+                    <button class="city-btn" data-city="Salvador">Salvador</button>
+                    <button class="city-btn" data-city="Fortaleza">Fortaleza</button>
+                    <button class="city-btn" data-city="Recife">Recife</button>
+                    <button class="city-btn" data-city="Manaus">Manaus</button>
+                    <button class="city-btn" data-city="Curitiba">Curitiba</button>
+                    <button class="city-btn" data-city="Porto Alegre">Porto Alegre</button>
+                </div>
+                <p class="credits">
+                    <small>Weather data provided by weather API</small>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
