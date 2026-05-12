@@ -1,29 +1,34 @@
-// Rio de Janeiro button selection
-const cityButtons = document.querySelectorAll('.city-btn');
+// Coastal regions selection and management
+const regionButtons = document.querySelectorAll('.region-btn');
 const cityNameDisplay = document.getElementById('city-name');
 const tempDisplay = document.querySelector('.temp-value');
 const conditionDisplay = document.getElementById('weather-condition');
 const humidityDisplay = document.getElementById('humidity');
 const windSpeedDisplay = document.getElementById('wind-speed');
-const RIO_DE_JANEIRO = 'Rio de Janeiro';
+const zoneDisplay = document.getElementById('zone-type');
+const activitiesDisplay = document.getElementById('region-activities');
+const descriptionDisplay = document.getElementById('region-description');
 
 // API Base URL
 const API_BASE_URL = 'http://localhost:3000/api';
 
+// Current selected region
+let currentRegion = 'Zona Sul';
+
 /**
- * Fetch weather data from backend
+ * Fetch weather data from backend for a specific region
  */
-async function fetchWeatherData(city) {
+async function fetchWeatherData(region) {
     try {
-        console.log('Fetching weather data for:', city);
+        console.log('Fetching weather data for:', region);
         
-        const response = await fetch(`${API_BASE_URL}/weather`);
+        const response = await fetch(`${API_BASE_URL}/weather?region=${encodeURIComponent(region)}`);
         if (!response.ok) throw new Error('Failed to fetch weather data');
         
         const result = await response.json();
         if (result.success) {
             displayWeatherData(result.data);
-            await fetchAndDisplaySafetyAnalysis();
+            await fetchAndDisplaySafetyAnalysis(region);
         }
     } catch (error) {
         console.error('Error fetching weather data:', error);
@@ -36,6 +41,7 @@ async function fetchWeatherData(city) {
  */
 function displayWeatherData(weatherData) {
     const current = weatherData.current;
+    const location = weatherData.location;
     
     // Update temperature
     tempDisplay.textContent = `${Math.round(current.temperature)}°C`;
@@ -48,6 +54,12 @@ function displayWeatherData(weatherData) {
     
     // Update wind speed
     windSpeedDisplay.textContent = `${Math.round(current.windSpeed)} km/h`;
+    
+    // Update region info
+    cityNameDisplay.textContent = location.region;
+    zoneDisplay.textContent = location.zone;
+    activitiesDisplay.textContent = location.activities.join(', ');
+    descriptionDisplay.textContent = location.description;
     
     console.log('Weather data displayed:', current);
 }
@@ -88,9 +100,9 @@ function getWeatherDescription(code) {
 /**
  * Fetch and display ML safety analysis
  */
-async function fetchAndDisplaySafetyAnalysis() {
+async function fetchAndDisplaySafetyAnalysis(region) {
     try {
-        const response = await fetch(`${API_BASE_URL}/safety-analysis`);
+        const response = await fetch(`${API_BASE_URL}/safety-analysis?region=${encodeURIComponent(region)}`);
         if (!response.ok) throw new Error('Failed to fetch safety analysis');
         
         const result = await response.json();
@@ -103,24 +115,39 @@ async function fetchAndDisplaySafetyAnalysis() {
 }
 
 /**
- * Display safety analysis data
+ * Display safety analysis and activity recommendations
  */
 function displaySafetyAnalysis(safetyData) {
     console.log('Safety Analysis:', safetyData);
     
     const analysis = safetyData.safetyAnalysis;
-    const recommendations = safetyData.trailRecommendations;
+    const recommendations = safetyData.activityRecommendations;
     
     // Create safety info section
-    const safetyInfo = document.createElement('div');
-    safetyInfo.className = 'safety-analysis';
-    safetyInfo.innerHTML = `
+    let safetyHTML = `
         <h3>Safety Analysis</h3>
         <p><strong>Risk Level:</strong> <span class="risk-${analysis.riskLevel.toLowerCase()}">${analysis.riskLevel}</span></p>
         <p><strong>Risk Score:</strong> ${analysis.riskScore}/100</p>
         <p><strong>Recommendation:</strong> ${analysis.recommendation}</p>
-        ${recommendations.length > 0 ? '<p><strong>Recommended Trail Difficulty:</strong> ' + recommendations[0].difficulty + '</p>' : ''}
     `;
+    
+    // Add activity recommendations
+    if (recommendations.length > 0) {
+        safetyHTML += '<h4 style="margin-top: 15px;">Recommended Activities</h4>';
+        recommendations.forEach(rec => {
+            safetyHTML += `
+                <div class="activity-recommendation">
+                    <p><strong>${rec.activity}</strong> - <span class="safety-badge">${rec.safety}</span></p>
+                    <p style="margin: 5px 0; font-size: 13px;">📍 ${rec.locations.join(', ')}</p>
+                    <p style="margin: 5px 0; font-size: 12px; color: #666;">${rec.reason}</p>
+                </div>
+            `;
+        });
+    }
+    
+    const safetyInfo = document.createElement('div');
+    safetyInfo.className = 'safety-analysis';
+    safetyInfo.innerHTML = safetyHTML;
     
     // Remove previous safety info if exists
     const existingInfo = document.querySelector('.safety-analysis');
@@ -141,25 +168,24 @@ function displayError(message) {
     conditionDisplay.textContent = message;
 }
 
-// Add click event to city buttons
-cityButtons.forEach(button => {
+// Add click event to region buttons
+regionButtons.forEach(button => {
     button.addEventListener('click', function() {
         // Remove active class from all buttons
-        cityButtons.forEach(btn => btn.classList.remove('active'));
+        regionButtons.forEach(btn => btn.classList.remove('active'));
         
         // Add active class to clicked button
         this.classList.add('active');
         
-        // Update city name display
-        const selectedCity = this.dataset.city;
-        cityNameDisplay.textContent = selectedCity;
+        // Update current region
+        currentRegion = this.dataset.region;
         
         // Fetch weather and ML safety data
-        fetchWeatherData(selectedCity);
+        fetchWeatherData(currentRegion);
     });
 });
 
-// Initialize - select Rio de Janeiro by default and fetch data
-if (cityButtons.length > 0) {
-    cityButtons[0].click();
+// Initialize - select Zona Sul by default and fetch data
+if (regionButtons.length > 0) {
+    regionButtons[0].click();
 }

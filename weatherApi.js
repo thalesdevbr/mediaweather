@@ -1,23 +1,74 @@
 // Weather API Integration - WeatherAPI and Open-Meteo
-// Provides real-time weather data for Rio de Janeiro
+// Provides real-time weather data for Rio de Janeiro coastal regions
 
-const RIO_COORDINATES = {
-    latitude: -22.9068,
-    longitude: -43.1729,
-    city: 'Rio de Janeiro'
+// Coastal regions of Rio de Janeiro
+const COASTAL_REGIONS = {
+    'Ilha Grande': {
+        latitude: -23.1611,
+        longitude: -44.2030,
+        region: 'Ilha Grande',
+        zone: 'South Coast',
+        activities: ['Beach', 'Diving', 'Snorkeling', 'Hiking'],
+        description: 'Island paradise with pristine beaches and marine life'
+    },
+    'Zona Oeste': {
+        latitude: -23.0265,
+        longitude: -43.6253,
+        region: 'Zona Oeste (West Zone)',
+        zone: 'West Coast',
+        activities: ['Surfing', 'Beach', 'Hiking', 'Water Sports'],
+        description: 'West zone with great waves and beautiful beaches'
+    },
+    'Zona Sul': {
+        latitude: -23.0285,
+        longitude: -43.1961,
+        region: 'Zona Sul (South Zone)',
+        zone: 'South Coast',
+        activities: ['Beach', 'Hiking', 'Climbing', 'Water Sports'],
+        description: 'Iconic beaches and mountain trails near the city'
+    },
+    'Saquarema': {
+        latitude: -22.9333,
+        longitude: -42.5000,
+        region: 'Saquarema',
+        zone: 'Lakes Region',
+        activities: ['Surfing', 'Windsurfing', 'Beach', 'Kitesurfing'],
+        description: 'Known for ideal surfing conditions and lakes'
+    },
+    'Arraial do Cabo': {
+        latitude: -22.9667,
+        longitude: -42.0333,
+        region: 'Arraial do Cabo',
+        zone: 'East Coast',
+        activities: ['Diving', 'Snorkeling', 'Beach', 'Boat Tours'],
+        description: 'Crystal clear waters and underwater attractions'
+    }
 };
+
+/**
+ * Get coordinates for a specific region
+ */
+function getRegionCoordinates(region) {
+    const regionData = COASTAL_REGIONS[region];
+    if (!regionData) {
+        throw new Error(`Region "${region}" not found. Available: ${Object.keys(COASTAL_REGIONS).join(', ')}`);
+    }
+    return regionData;
+}
 
 /**
  * Fetch weather data from Open-Meteo (free, no API key needed)
  */
-async function fetchOpenMeteoData() {
+async function fetchOpenMeteoData(region = 'Zona Sul') {
     try {
+        const coordinates = getRegionCoordinates(region);
+        
         const params = new URLSearchParams({
-            latitude: RIO_COORDINATES.latitude,
-            longitude: RIO_COORDINATES.longitude,
+            latitude: coordinates.latitude,
+            longitude: coordinates.longitude,
             current: 'temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation',
             hourly: 'temperature_2m,precipitation_probability,weather_code',
-            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max',
+            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weather_code',
             timezone: 'America/Sao_Paulo'
         });
 
@@ -37,8 +88,9 @@ async function fetchOpenMeteoData() {
 /**
  * Parse Open-Meteo data into standardized format
  */
-function parseOpenMeteoData(data) {
+function parseOpenMeteoData(data, region = 'Zona Sul') {
     const current = data.current;
+    const regionData = getRegionCoordinates(region);
     
     return {
         source: 'open-meteo',
@@ -53,21 +105,24 @@ function parseOpenMeteoData(data) {
         hourly: data.hourly,
         daily: data.daily,
         location: {
-            city: RIO_COORDINATES.city,
-            latitude: RIO_COORDINATES.latitude,
-            longitude: RIO_COORDINATES.longitude
+            region: regionData.region,
+            zone: regionData.zone,
+            latitude: regionData.latitude,
+            longitude: regionData.longitude,
+            activities: regionData.activities,
+            description: regionData.description
         },
         timestamp: new Date().toISOString()
     };
 }
 
 /**
- * Get weather data for Rio de Janeiro
+ * Get weather data for a specific region
  */
-async function getWeatherData() {
+async function getWeatherData(region = 'Zona Sul') {
     try {
-        const meteoData = await fetchOpenMeteoData();
-        const parsedData = parseOpenMeteoData(meteoData);
+        const meteoData = await fetchOpenMeteoData(region);
+        const parsedData = parseOpenMeteoData(meteoData, region);
         return parsedData;
     } catch (error) {
         console.error('Failed to fetch weather data:', error);
@@ -79,5 +134,6 @@ module.exports = {
     getWeatherData,
     fetchOpenMeteoData,
     parseOpenMeteoData,
-    RIO_COORDINATES
+    getRegionCoordinates,
+    COASTAL_REGIONS
 };

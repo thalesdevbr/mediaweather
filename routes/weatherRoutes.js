@@ -9,11 +9,13 @@ const router = express.Router();
 
 /**
  * GET /api/weather
- * Get current weather data for Rio de Janeiro
+ * Get current weather data for a specific coastal region
+ * Query param: region (default: 'Zona Sul')
  */
 router.get('/weather', async (req, res) => {
     try {
-        const weatherData = await weatherApi.getWeatherData();
+        const region = req.query.region || 'Zona Sul';
+        const weatherData = await weatherApi.getWeatherData(region);
         res.json({
             success: true,
             data: weatherData
@@ -30,11 +32,13 @@ router.get('/weather', async (req, res) => {
 
 /**
  * GET /api/safety-analysis
- * Get safety analysis and trail recommendations for Rio de Janeiro
+ * Get safety analysis and activity recommendations for a specific region
+ * Query param: region (default: 'Zona Sul')
  */
 router.get('/safety-analysis', async (req, res) => {
     try {
-        const weatherData = await weatherApi.getWeatherData();
+        const region = req.query.region || 'Zona Sul';
+        const weatherData = await weatherApi.getWeatherData(region);
         const safetyReport = await mlSafetyAnalysis.analyzeSafety(weatherData);
         
         res.json({
@@ -53,11 +57,13 @@ router.get('/safety-analysis', async (req, res) => {
 
 /**
  * GET /api/risk-assessment
- * Get detailed risk assessment
+ * Get detailed risk assessment for a specific region
+ * Query param: region (default: 'Zona Sul')
  */
 router.get('/risk-assessment', async (req, res) => {
     try {
-        const weatherData = await weatherApi.getWeatherData();
+        const region = req.query.region || 'Zona Sul';
+        const weatherData = await weatherApi.getWeatherData(region);
         const riskAssessment = mlSafetyAnalysis.calculateRiskScore(weatherData);
         
         res.json({
@@ -79,31 +85,53 @@ router.get('/risk-assessment', async (req, res) => {
 });
 
 /**
- * GET /api/trail-recommendations
- * Get recommended trails based on current conditions
+ * GET /api/activity-recommendations
+ * Get recommended activities based on current weather for a specific region
+ * Query param: region (default: 'Zona Sul')
  */
-router.get('/trail-recommendations', async (req, res) => {
+router.get('/activity-recommendations', async (req, res) => {
     try {
-        const weatherData = await weatherApi.getWeatherData();
+        const region = req.query.region || 'Zona Sul';
+        const weatherData = await weatherApi.getWeatherData(region);
         const riskAssessment = mlSafetyAnalysis.calculateRiskScore(weatherData);
-        const recommendations = mlSafetyAnalysis.getTrailRecommendations(weatherData, riskAssessment);
+        const recommendations = mlSafetyAnalysis.getActivityRecommendations(weatherData, riskAssessment);
         
         res.json({
             success: true,
             data: {
                 timestamp: new Date().toISOString(),
+                region: weatherData.location.region,
                 riskLevel: riskAssessment.riskLevel,
-                recommendations: recommendations
+                activities: recommendations
             }
         });
     } catch (error) {
-        console.error('Trail Recommendations error:', error);
+        console.error('Activity Recommendations error:', error);
         res.status(500).json({
             success: false,
-            error: 'Failed to get trail recommendations',
+            error: 'Failed to get activity recommendations',
             message: error.message
         });
     }
+});
+
+/**
+ * GET /api/regions
+ * Get list of available coastal regions
+ */
+router.get('/regions', (req, res) => {
+    const regions = weatherApi.COASTAL_REGIONS;
+    const regionsList = Object.entries(regions).map(([name, data]) => ({
+        name: name,
+        zone: data.zone,
+        activities: data.activities,
+        description: data.description
+    }));
+    
+    res.json({
+        success: true,
+        data: regionsList
+    });
 });
 
 module.exports = router;

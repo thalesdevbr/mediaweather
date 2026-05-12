@@ -177,7 +177,7 @@ body {
     box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
 }
 
-.cities-list {
+.regions-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -186,7 +186,7 @@ body {
     overflow-y: auto;
 }
 
-.city-btn {
+.region-btn {
     padding: 14px 16px;
     background-color: white;
     border: 2px solid var(--light-blue);
@@ -200,20 +200,41 @@ body {
     text-align: left;
 }
 
-.city-btn:hover {
+.region-btn:hover {
     background-color: var(--light-blue);
     border-color: var(--primary-blue);
     transform: translateX(4px);
 }
 
-.city-btn:active {
+.region-btn:active {
     transform: translateX(2px);
 }
 
-.city-btn.active {
+.region-btn.active {
     background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
     color: white;
     border-color: var(--dark-blue);
+}
+
+.region-info {
+    background-color: var(--light-blue);
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+    font-size: 13px;
+}
+
+.region-info p {
+    margin: 8px 0;
+    color: var(--text-dark);
+}
+
+.region-description {
+    font-style: italic;
+    color: var(--text-light);
+    margin-top: 10px !important;
+    padding-top: 10px !important;
+    border-top: 1px solid var(--border-color);
 }
 
 .credits {
@@ -307,6 +328,13 @@ body {
     font-weight: 600;
 }
 
+.safety-analysis h4 {
+    color: var(--primary-blue);
+    font-size: 15px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
 .safety-analysis p {
     font-size: 14px;
     margin-bottom: 10px;
@@ -316,6 +344,35 @@ body {
 .safety-analysis strong {
     color: var(--primary-blue);
     font-weight: 600;
+}
+
+/* Activity Recommendations */
+.activity-recommendation {
+    background-color: white;
+    border-left: 4px solid var(--primary-blue);
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.activity-recommendation:hover {
+    box-shadow: 0 2px 8px rgba(0, 102, 204, 0.15);
+    transform: translateX(2px);
+}
+
+.safety-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    background-color: #cfe2ff;
+    color: #084298;
+}
+
+.activity-recommendation p:first-child {
+    margin-bottom: 8px;
 }
 
 /* Risk Level Colors */

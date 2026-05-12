@@ -1,6 +1,28 @@
-# MediaWeather - Rio de Janeiro Safety Analysis
+# MediaWeather - Rio de Janeiro Coastal Regions Safety Analysis
 
-Um aplicativo inteligente de análise de segurança para viagens e trilhas no Rio de Janeiro, utilizando dados meteorológicos em tempo real e Machine Learning.
+Um aplicativo inteligente de análise de segurança para atividades costeiras no Rio de Janeiro, utilizando dados meteorológicos em tempo real e Machine Learning.
+
+## Regiões Litorâneas Suportadas
+
+1. **Zona Sul** (Padrão) - Copacabana, Ipanema, Leblon
+   - Praias icônicas e trilhas de montanha
+   - Atividades: Beach, Hiking, Climbing, Water Sports
+
+2. **Zona Oeste** - Recreio, Barra, Prainha
+   - Excelentes condições para surf
+   - Atividades: Surfing, Beach, Hiking, Water Sports
+
+3. **Saquarema** - Lagos e praias para esportes aquáticos
+   - Região ideal para windsurfe
+   - Atividades: Surfing, Windsurfing, Beach, Kitesurfing
+
+4. **Arraial do Cabo** - Águas cristalinas do litoral leste
+   - Paradise para mergulho e snorkel
+   - Atividades: Diving, Snorkeling, Beach, Boat Tours
+
+5. **Ilha Grande** - Ilha paradisíaca na costa sul
+   - Natureza intocada e vida marinha
+   - Atividades: Beach, Diving, Snorkeling, Hiking
 
 ## Arquitetura do Projeto
 
@@ -22,87 +44,101 @@ mediaweather/
 ### 1. **Integração com APIs de Clima**
 - **Open-Meteo**: API gratuita de previsão do tempo
 - Dados coletados: temperatura, umidade, velocidade do vento, precipitação
-- Coordenadas de Rio de Janeiro: -22.9068°S, -43.1729°O
+- Coordenadas específicas para cada região litorânea
 
 ### 2. **Análise de Segurança com ML**
 O sistema analisa fatores de risco:
-- **Velocidade do vento**: Determina se é seguro em trilhas expostas
-- **Precipitação**: Alerta para superfícies escorregadias e risco de enchentes
-- **Temperatura**: Identifica risco de hipotermia ou insolação
-- **Umidade**: Avalia esforço físico necessário
+- **Velocidade do vento**: Determina segurança para water sports (surf, windsurfe)
+- **Precipitação**: Alerta para visibilidade em mergulho e snorkel
+- **Temperatura da água**: Importante para atividades aquáticas
+- **Umidade**: Avalia conforto para atividades de praia
 
-### 3. **Recomendações de Trilhas**
-Com base na análise de risco, o sistema recomenda:
-- Trilhas de alta dificuldade (Pico da Tijuca, Pedra da Gávea, Morro dos Dois Irmãos)
-- Trilhas de média dificuldade (Floresta da Tijuca, Escada do Urca)
-- Trilhas fáceis (Passeio Público, Lagoa Rodrigo de Freitas)
+### 3. **Recomendações de Atividades por Região**
+
+#### Illa Grande
+- **Merging & Snorkel**: Águas cristalinas (até 25m visibilidade)
+- **Atividades de Praia**: Praias intocadas e isoladas
+- **Trilhas**: Vegetação nativa e fauna silvestre
+
+#### Zona Oeste
+- **Surf**: Ondas consistentes especialmente em Prainha e Recreio
+- **Esportes Aquáticos**: Condições variadas para diferentes níveis
+- **Caminhadas**: Praias selvagens e vista panorâmica
+
+#### Zona Sul
+- **Praias**: Água mais cálida, infraestrutura completa
+- **Trilhas de Montanha**: Vistas urbanas e natureza
+- **Escalada**: Picos rochosos com desafio técnico
+
+#### Saquarema
+- **Surf & Windsurfe**: Condições ideais com ventos específicos
+- **Kitesurfe**: Lagoas com ventos fortes
+- **Atividades Aquáticas**: Água calma ou agitada conforme necessário
+
+#### Arraial do Cabo
+- **Mergulho & Snorkel**: Biodiversidade marinha excepcional
+- **Passeios de Barco**: Tours para ilhas e cavernas submarinas
+- **Praia**: Água cristalina e preservação marinha
 
 ### 4. **Coleta de Dados para ML**
 - Todos os dados analisados são armazenados em `ml-data/weather-YYYY-MM-DD.json`
-- Serve como dataset para treinar modelos ML mais sofisticados no futuro
 - Padrão: Um arquivo por dia com múltiplas entradas de análise
+- Pronto para treino de modelos de previsão mais sofisticados
 
 ## API REST Endpoints
 
-### GET `/api/weather`
-Retorna dados meteorológicos atuais do Rio de Janeiro.
+### GET `/api/regions`
+Lista todas as regiões litorâneas disponíveis.
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "source": "open-meteo",
-    "current": {
-      "temperature": 28.5,
-      "humidity": 75,
-      "windSpeed": 15,
-      "precipitation": 0.2,
-      "weatherCode": 2,
-      "time": "2026-05-12T15:30:00Z"
-    },
-    "location": {
-      "city": "Rio de Janeiro",
-      "latitude": -22.9068,
-      "longitude": -43.1729
-    }
-  }
-}
-```
+### GET `/api/weather?region=<region>`
+Retorna dados meteorológicos atuais de uma região específica.
 
-### GET `/api/safety-analysis`
-Realiza análise completa de segurança e retorna recomendações de trilhas.
+**Query Parameters:**
+- `region` (string, default: 'Zona Sul') - Nome da região
 
-**Response:**
+### GET `/api/safety-analysis?region=<region>`
+Realiza análise completa de segurança e retorna recomendações de atividades.
+
+**Query Parameters:**
+- `region` (string, default: 'Zona Sul') - Nome da região
+
+### GET `/api/risk-assessment?region=<region>`
+Retorna apenas a avaliação de risco detalhada.
+
+**Query Parameters:**
+- `region` (string, default: 'Zona Sul') - Nome da região
+
+### GET `/api/activity-recommendations?region=<region>`
+Retorna apenas as recomendações de atividades para a região.
+
+**Query Parameters:**
+- `region` (string, default: 'Zona Sul') - Nome da região
+
+**Exemplo de Response:**
 ```json
 {
   "success": true,
   "data": {
     "timestamp": "2026-05-12T15:30:00Z",
-    "location": { "city": "Rio de Janeiro", ... },
-    "currentWeather": { ... },
-    "safetyAnalysis": {
-      "riskScore": 25,
-      "riskLevel": "LOW",
-      "factors": ["Good conditions"],
-      "recommendation": "SAFE: Good conditions for outdoor activities. Beginner-friendly trails recommended."
-    },
-    "trailRecommendations": [
+    "region": "Arraial do Cabo",
+    "riskLevel": "LOW",
+    "activities": [
       {
-        "difficulty": "HIGH",
-        "trails": ["Pico da Tijuca", "Pedra da Gávea", "Morro dos Dois Irmãos"],
-        "reason": "Excellent conditions for challenging hikes"
+        "activity": "Diving & Snorkeling",
+        "locations": ["Gruta do Cabo", "Praia Grande", "Tartaruga Beach"],
+        "reason": "Crystal clear waters",
+        "safety": "Safe - excellent visibility"
+      },
+      {
+        "activity": "Boat Tours & Beach",
+        "locations": ["Praia Grande", "Farol Beach", "Banana Island"],
+        "reason": "Great for exploration",
+        "safety": "Check sea conditions"
       }
     ]
   }
 }
 ```
-
-### GET `/api/risk-assessment`
-Retorna apenas a avaliação de risco detalhada.
-
-### GET `/api/trail-recommendations`
-Retorna apenas as recomendações de trilhas.
 
 ## Níveis de Risco
 
@@ -150,22 +186,26 @@ O servidor estará disponível em `http://localhost:3000`
    - Tecnologias: TensorFlow.js, scikit-learn (Python backend)
 
 2. **Análise de Padrões Históricos**
-   - Identificar horários/épocas mais seguras para trilhas
-   - Correlações entre condições climáticas e acidentes
+   - Identificar horários/épocas mais seguras para atividades costeiras
+   - Correlações entre condições climáticas e acidentes marítimos
 
 3. **Recomendações Personalizadas**
    - Basear-se no histórico de usuários
-   - Sugerir trilhas específicas por nível de experiência
+   - Sugerir atividades específicas por experiência
 
 4. **Alertas em Tempo Real**
    - Notificar usuários sobre mudanças de risco
    - Avisos de tempestades/condições perigosas
 
+5. **Análise Marinha Avançada**
+   - Integrar dados de ondas e marés
+   - Correntes marítimas e segurança de mergulho
+
 ## Créditos
 
 - Dados meteorológicos: **Open-Meteo** e **WeatherAPI**
 - Análise de segurança: Machine Learning customizado
-- Localização: Rio de Janeiro, Brasil
+- Localização: Regiões costeiras do Rio de Janeiro, Brasil
 
 ## Licença
 

@@ -99,51 +99,132 @@ function getRecommendation(score) {
     if (score >= 70) {
         return 'NOT RECOMMENDED: Outdoor activities strongly discouraged. Stay indoors.';
     } else if (score >= 50) {
-        return 'HIGH CAUTION: Only experienced hikers on well-known trails. Avoid solo activities.';
+        return 'HIGH CAUTION: Limited activities. Only for experienced adventurers.';
     } else if (score >= 30) {
-        return 'MODERATE CAUTION: Suitable for experienced hikers. Check conditions regularly.';
+        return 'MODERATE CAUTION: Most activities possible. Check conditions regularly.';
     } else if (score >= 10) {
-        return 'SAFE: Good conditions for outdoor activities. Beginner-friendly trails recommended.';
+        return 'SAFE: Good conditions for most outdoor activities.';
     } else {
-        return 'IDEAL: Excellent conditions for all types of outdoor activities.';
+        return 'IDEAL: Excellent conditions for all types of activities.';
     }
 }
 
 /**
- * Trail recommendation based on safety analysis
+ * Get activity recommendations by region and weather
  */
-function getTrailRecommendations(weatherData, riskAssessment) {
+function getActivityRecommendations(weatherData, riskAssessment) {
+    const region = weatherData.location;
+    const wind = weatherData.current.windSpeed;
+    const temp = weatherData.current.temperature;
+    const precipitation = weatherData.current.precipitation;
     const recommendations = [];
 
-    // High-difficulty trails
-    if (riskAssessment.riskScore < 30) {
-        recommendations.push({
-            difficulty: 'HIGH',
-            trails: ['Pico da Tijuca', 'Pedra da Gávea', 'Morro dos Dois Irmãos'],
-            reason: 'Excellent conditions for challenging hikes'
-        });
+    // ILHA GRANDE - Beach, Diving, Snorkeling, Hiking
+    if (region.region === 'Ilha Grande') {
+        if (riskAssessment.riskScore < 30 && wind < 25) {
+            recommendations.push({
+                activity: 'Diving & Snorkeling',
+                locations: ['Big Beach (Praia Grande)', 'Lopez Mendes', 'Dark Beach (Praia Preta)'],
+                reason: 'Perfect underwater visibility',
+                safety: 'Safe'
+            });
+        }
+        if (riskAssessment.riskScore < 50) {
+            recommendations.push({
+                activity: 'Beach Activities',
+                locations: ['Praia Grande', 'Praia do Abraão', 'Lagoa Azul'],
+                reason: 'Good beach conditions',
+                safety: 'Moderate'
+            });
+        }
     }
-
-    // Medium-difficulty trails
-    if (riskAssessment.riskScore < 50) {
-        recommendations.push({
-            difficulty: 'MEDIUM',
-            trails: ['Trilha da Floresta da Tijuca', 'Escada do Urca', 'Mirante Dona Marta'],
-            reason: 'Good conditions for intermediate hikes'
-        });
+    
+    // ZONA OESTE - Surfing, Water Sports
+    else if (region.region === 'Zona Oeste (West Zone)') {
+        if (wind >= 12 && wind <= 25 && riskAssessment.riskScore < 50) {
+            recommendations.push({
+                activity: 'Surfing',
+                locations: ['Recreio Beach', 'Barra Beach', 'Prainha'],
+                reason: 'Good wave conditions',
+                safety: 'Check tide'
+            });
+        }
+        if (riskAssessment.riskScore < 40) {
+            recommendations.push({
+                activity: 'Water Sports',
+                locations: ['Barra Beach', 'Recreio Beach'],
+                reason: 'Suitable conditions for water activities',
+                safety: 'Safe'
+            });
+        }
     }
-
-    // Easy trails
-    if (riskAssessment.riskScore < 70) {
-        recommendations.push({
-            difficulty: 'EASY',
-            trails: ['Passeio Público', 'Caminho do Corte', 'Lagoa Rodrigo de Freitas'],
-            reason: 'Suitable for casual walks and easy trails'
-        });
+    
+    // ZONA SUL - Beach, Hiking, Climbing
+    else if (region.region === 'Zona Sul (South Zone)') {
+        if (riskAssessment.riskScore < 35 && wind < 20) {
+            recommendations.push({
+                activity: 'Beach Days',
+                locations: ['Copacabana', 'Ipanema', 'Leblon'],
+                reason: 'Perfect beach weather',
+                safety: 'Safe'
+            });
+        }
+        if (riskAssessment.riskScore < 45 && wind < 18) {
+            recommendations.push({
+                activity: 'Hiking & Climbing',
+                locations: ['Morro dos Irmãos', 'Pedra da Gávea', 'Pico da Tijuca'],
+                reason: 'Good conditions for trails',
+                safety: 'Experienced recommended'
+            });
+        }
+    }
+    
+    // SAQUAREMA - Surfing, Windsurfing
+    else if (region.region === 'Saquarema') {
+        if (wind >= 12 && wind <= 28 && riskAssessment.riskScore < 50) {
+            recommendations.push({
+                activity: 'Surfing & Windsurfing',
+                locations: ['Main Beach', 'Itaúna Beach', 'Lagoa Lake'],
+                reason: 'Ideal wind and wave conditions',
+                safety: 'Check conditions'
+            });
+        }
+        if (riskAssessment.riskScore < 40) {
+            recommendations.push({
+                activity: 'Beach & Lake Activities',
+                locations: ['Saquarema Beach', 'Lagoa Lake'],
+                reason: 'Good conditions for water activities',
+                safety: 'Safe'
+            });
+        }
+    }
+    
+    // ARRAIAL DO CABO - Diving, Snorkeling, Boat Tours
+    else if (region.region === 'Arraial do Cabo') {
+        if (riskAssessment.riskScore < 30 && wind < 20) {
+            recommendations.push({
+                activity: 'Diving & Snorkeling',
+                locations: ['Gruta do Cabo', 'Praia Grande', 'Tartaruga Beach'],
+                reason: 'Crystal clear waters',
+                safety: 'Safe - excellent visibility'
+            });
+        }
+        if (riskAssessment.riskScore < 45) {
+            recommendations.push({
+                activity: 'Boat Tours & Beach',
+                locations: ['Praia Grande', 'Farol Beach', 'Banana Island'],
+                reason: 'Great for exploration',
+                safety: 'Check sea conditions'
+            });
+        }
     }
 
     return recommendations;
 }
+
+/**
+ * Regional activity recommendations based on weather and location
+ */
 
 /**
  * Store weather data for ML training
@@ -184,7 +265,7 @@ function storeWeatherDataForML(weatherData, riskAssessment) {
  */
 async function analyzeSafety(weatherData) {
     const riskAssessment = calculateRiskScore(weatherData);
-    const trailRecommendations = getTrailRecommendations(weatherData, riskAssessment);
+    const activityRecommendations = getActivityRecommendations(weatherData, riskAssessment);
     
     // Store data for future ML model training
     storeWeatherDataForML(weatherData, riskAssessment);
@@ -194,7 +275,7 @@ async function analyzeSafety(weatherData) {
         location: weatherData.location,
         currentWeather: weatherData.current,
         safetyAnalysis: riskAssessment,
-        trailRecommendations: trailRecommendations
+        activityRecommendations: activityRecommendations
     };
 }
 
@@ -202,7 +283,7 @@ module.exports = {
     calculateRiskScore,
     getRiskLevel,
     getRecommendation,
-    getTrailRecommendations,
+    getActivityRecommendations,
     storeWeatherDataForML,
     analyzeSafety,
     RISK_FACTORS
