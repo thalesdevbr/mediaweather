@@ -24,6 +24,7 @@ const regionMarkers = {};
  * Fetch weather data from backend for a specific region
  */
 async function fetchWeatherData(region) {
+    setLoading(true);
     try {
         console.log('Fetching weather data for:', region);
         
@@ -38,6 +39,22 @@ async function fetchWeatherData(region) {
     } catch (error) {
         console.error('Error fetching weather data:', error);
         displayError('Unable to load weather data. Make sure the backend server is running.');
+    } finally {
+        setLoading(false);
+    }
+}
+
+function setLoading(isLoading) {
+    const weatherContent = document.querySelector('.weather-content');
+    const weatherCard = document.querySelector('.weather-card');
+    if (!weatherContent || !weatherCard) return;
+
+    if (isLoading) {
+        weatherCard.classList.add('is-loading');
+        regionButtons.forEach(btn => btn.disabled = true);
+    } else {
+        weatherCard.classList.remove('is-loading');
+        regionButtons.forEach(btn => btn.disabled = false);
     }
 }
 
