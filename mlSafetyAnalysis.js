@@ -11,31 +11,73 @@ const RISK_FACTORS = {
     WIND_SPEED: {
         LOW: { threshold: 20, risk: 'low', description: 'Safe for all trails' },
         MEDIUM: { threshold: 40, risk: 'medium', description: 'Caution advised on exposed trails' },
-        HIGH: { threshold: Infinity, risk: 'high', description: 'Dangerous wind conditions' }
+        HIGH: { threshold: 60, risk: 'high', description: 'Dangerous wind conditions' }
     },
     PRECIPITATION: {
         LOW: { threshold: 0.5, risk: 'low', description: 'Minimal precipitation' },
         MEDIUM: { threshold: 2.0, risk: 'medium', description: 'Moderate precipitation - slippery surfaces' },
-        HIGH: { threshold: Infinity, risk: 'high', description: 'Heavy precipitation - risk of floods' }
+        HIGH: { threshold: 5.0, risk: 'high', description: 'Heavy precipitation - risk of floods' }
     },
     TEMPERATURE: {
         COLD: { threshold: 10, risk: 'medium', description: 'Cold conditions' },
         MODERATE: { threshold: 35, risk: 'low', description: 'Safe temperature range' },
-        HOT: { threshold: Infinity, risk: 'high', description: 'Heat stroke risk' }
+        HOT: { threshold: 38, risk: 'high', description: 'Heat stroke risk' }
     },
     HUMIDITY: {
         LOW: { threshold: 30, risk: 'low', description: 'Dry conditions' },
         MODERATE: { threshold: 70, risk: 'low', description: 'Comfortable humidity' },
-        HIGH: { threshold: Infinity, risk: 'medium', description: 'High humidity - physical strain' }
+        HIGH: { threshold: 80, risk: 'medium', description: 'High humidity - physical strain' }
     }
 };
+
+// WMO weather code → risk score mapping
+const WEATHER_CODE_RISK = {
+    99: { score: 50, description: 'Thunderstorm with heavy hail - stay indoors' },
+    96: { score: 45, description: 'Thunderstorm with hail - extremely dangerous' },
+    95: { score: 40, description: 'Thunderstorm - dangerous for outdoor activities' },
+    82: { score: 25, description: 'Violent rain showers - flooding risk' },
+    81: { score: 15, description: 'Moderate rain showers - slippery conditions' },
+    80: { score: 10, description: 'Rain showers - take care on trails' },
+    65: { score: 20, description: 'Heavy rain - flooding risk' },
+    63: { score: 12, description: 'Moderate rain - caution on exposed areas' },
+    61: { score: 8,  description: 'Light rain - minor risk' },
+    77: { score: 12, description: 'Snow grains - rare but slippery' },
+    75: { score: 20, description: 'Heavy snow - activity not recommended' },
+    73: { score: 15, description: 'Moderate snow - caution' },
+    71: { score: 10, description: 'Light snow - caution' },
+    48: { score: 10, description: 'Freezing fog - reduced visibility' },
+    45: { score: 8,  description: 'Fog - reduced visibility on trails' }
+};
+
+function getWeatherCodeRisk(code) {
+    return WEATHER_CODE_RISK[code] || { score: 0, description: null };
+}
+
+function analyzeTrend(hourlyData, currentTime) {
+    if (!hourlyData || !hourlyData.time || !currentTime) return null;
+
+    const currentIndex = hourlyData.time.findIndex(t => t >= currentTime);
+    if (currentIndex < 0) return null;
+
+    const next6h = (hourlyData.precipitation_probability || []).slice(currentIndex + 1, currentIndex + 7);
+    const avgPrecipProb = next6h.length > 0
+        ? Math.round(next6h.reduce((a, b) => a + b, 0) / next6h.length)
+        : 0;
+
+    const upcomingCodes = (hourlyData.weather_code || []).slice(currentIndex + 1, currentIndex + 4);
+    const worsening = upcomingCodes.some(c => c >= 61) || avgPrecipProb > 60;
+
+    return { precipitationProbability6h: avgPrecipProb, worsening };
+}
 
 /**
  * Calculate risk score based on weather data
  * @param {Object} weatherData - Current weather data
+ * @param {number|null} uvIndex - Today's max UV index
+ * @param {Object|null} trend - Hourly trend analysis
  * @returns {Object} Risk assessment
  */
-function calculateRiskScore(weatherData) {
+function calculateRiskScore(weatherData, uvIndex = null, trend = null) {
     const current = weatherData.current;
     let riskScore = 0;
     const riskFactors = [];
@@ -49,6 +91,15 @@ function calculateRiskScore(weatherData) {
         riskFactors.push(RISK_FACTORS.WIND_SPEED.MEDIUM.description);
     }
 
+    // Wind gusts analysis
+    if (current.windGusts >= 70) {
+        riskScore += 20;
+        riskFactors.push(`Dangerous wind gusts (${Math.round(current.windGusts)} km/h)`);
+    } else if (current.windGusts >= 50) {
+        riskScore += 10;
+        riskFactors.push(`Strong wind gusts (${Math.round(current.windGusts)} km/h)`);
+    }
+
     // Precipitation analysis
     if (current.precipitation >= RISK_FACTORS.PRECIPITATION.HIGH.threshold) {
         riskScore += 35;
@@ -59,7 +110,7 @@ function calculateRiskScore(weatherData) {
     }
 
     // Temperature analysis
-    if (current.temperature > RISK_FACTORS.TEMPERATURE.HOT.threshold) {
+    if (current.temperature >= RISK_FACTORS.TEMPERATURE.HOT.threshold) {
         riskScore += 20;
         riskFactors.push(RISK_FACTORS.TEMPERATURE.HOT.description);
     } else if (current.temperature < RISK_FACTORS.TEMPERATURE.COLD.threshold) {
@@ -68,9 +119,36 @@ function calculateRiskScore(weatherData) {
     }
 
     // Humidity analysis
-    if (current.humidity >= 80) {
+    if (current.humidity >= RISK_FACTORS.HUMIDITY.HIGH.threshold) {
         riskScore += 10;
         riskFactors.push(RISK_FACTORS.HUMIDITY.HIGH.description);
+    }
+
+    // Weather code analysis (WMO codes — previously missing)
+    const codeRisk = getWeatherCodeRisk(current.weatherCode);
+    if (codeRisk.score > 0) {
+        riskScore += codeRisk.score;
+        riskFactors.push(codeRisk.description);
+    }
+
+    // UV index analysis
+    if (uvIndex !== null) {
+        if (uvIndex >= 11) {
+            riskScore += 20;
+            riskFactors.push(`Extreme UV index (${uvIndex}) - minimize sun exposure`);
+        } else if (uvIndex >= 8) {
+            riskScore += 10;
+            riskFactors.push(`Very high UV index (${uvIndex}) - sun protection essential`);
+        } else if (uvIndex >= 6) {
+            riskScore += 5;
+            riskFactors.push(`High UV index (${uvIndex}) - sun protection recommended`);
+        }
+    }
+
+    // Trend analysis
+    if (trend && trend.worsening) {
+        riskScore += 10;
+        riskFactors.push(`Worsening conditions expected (${trend.precipitationProbability6h}% rain probability next 6h)`);
     }
 
     return {
@@ -264,9 +342,11 @@ function storeWeatherDataForML(weatherData, riskAssessment) {
  * Analyze safety and get full report
  */
 async function analyzeSafety(weatherData) {
-    const riskAssessment = calculateRiskScore(weatherData);
+    const uvIndex = weatherData.daily?.uv_index_max?.[0] ?? null;
+    const trend = analyzeTrend(weatherData.hourly, weatherData.current.time);
+    const riskAssessment = calculateRiskScore(weatherData, uvIndex, trend);
     const activityRecommendations = getActivityRecommendations(weatherData, riskAssessment);
-    
+
     // Store data for future ML model training
     storeWeatherDataForML(weatherData, riskAssessment);
 
@@ -275,7 +355,9 @@ async function analyzeSafety(weatherData) {
         location: weatherData.location,
         currentWeather: weatherData.current,
         safetyAnalysis: riskAssessment,
-        activityRecommendations: activityRecommendations
+        activityRecommendations: activityRecommendations,
+        uvIndex,
+        trend
     };
 }
 

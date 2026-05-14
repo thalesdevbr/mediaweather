@@ -1,0 +1,196 @@
+[
+  {
+    "timestamp": "2026-05-14T02:21:20.860Z",
+    "weather": {
+      "temperature": 14.4,
+      "humidity": 95,
+      "windSpeed": 2.7,
+      "precipitation": 0,
+      "weatherCode": 3,
+      "time": "2026-05-13T23:15"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "High humidity - physical strain"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Ilha Grande",
+      "zone": "South Coast",
+      "latitude": -23.1611,
+      "longitude": -44.203,
+      "activities": [
+        "Beach",
+        "Diving",
+        "Snorkeling",
+        "Hiking"
+      ],
+      "description": "Island paradise with pristine beaches and marine life"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T02:22:33.593Z",
+    "weather": {
+      "temperature": 14.4,
+      "humidity": 95,
+      "windSpeed": 2.7,
+      "precipitation": 0,
+      "weatherCode": 3,
+      "time": "2026-05-13T23:15"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "High humidity - physical strain"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Ilha Grande",
+      "zone": "South Coast",
+      "latitude": -23.1611,
+      "longitude": -44.203,
+      "activities": [
+        "Beach",
+        "Diving",
+        "Snorkeling",
+        "Hiking"
+      ],
+      "description": "Island paradise with pristine beaches and marine life"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T02:22:34.995Z",
+    "weather": {
+      "temperature": 20.2,
+      "humidity": 91,
+      "windSpeed": 1.6,
+      "precipitation": 0,
+      "weatherCode": 2,
+      "time": "2026-05-13T23:15"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "High humidity - physical strain"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Zona Oeste (West Zone)",
+      "zone": "West Coast",
+      "latitude": -23.0265,
+      "longitude": -43.6253,
+      "activities": [
+        "Surfing",
+        "Beach",
+        "Hiking",
+        "Water Sports"
+      ],
+      "description": "West zone with great waves and beautiful beaches"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T02:22:36.838Z",
+    "weather": {
+      "temperature": 21.7,
+      "humidity": 91,
+      "windSpeed": 2.6,
+      "precipitation": 0,
+      "weatherCode": 3,
+      "time": "2026-05-13T23:15"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "High humidity - physical strain"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Zona Sul (South Zone)",
+      "zone": "South Coast",
+      "latitude": -23.0285,
+      "longitude": -43.1961,
+      "activities": [
+        "Beach",
+        "Hiking",
+        "Climbing",
+        "Water Sports"
+      ],
+      "description": "Iconic beaches and mountain trails near the city"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T02:22:46.976Z",
+    "weather": {
+      "temperature": 23.1,
+      "humidity": 88,
+      "windSpeed": 16.9,
+      "precipitation": 0,
+      "weatherCode": 2,
+      "time": "2026-05-13T23:15"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "High humidity - physical strain"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Arraial do Cabo",
+      "zone": "East Coast",
+      "latitude": -22.9667,
+      "longitude": -42.0333,
+      "activities": [
+        "Diving",
+        "Snorkeling",
+        "Beach",
+        "Boat Tours"
+      ],
+      "description": "Crystal clear waters and underwater attractions"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T02:36:19.339Z",
+    "weather": {
+      "temperature": 30,
+      "humidity": 85,
+      "windSpeed": 65,
+      "windGusts": 75,
+      "precipitation": 6,
+      "weatherCode": 95,
+      "time": "2026-05-14T10:00"
+    },
+    "riskAssessment": {
+      "riskScore": 100,
+      "riskLevel": "CRITICAL",
+      "factors": [
+        "Dangerous wind conditions",
+        "Dangerous wind gusts (75 km/h)",
+        "Heavy precipitation - risk of floods",
+        "High humidity - physical strain",
+        "Thunderstorm - dangerous for outdoor activities",
+        "Very high UV index (9) - sun protection essential",
+        "Worsening conditions expected (85% rain probability next 6h)"
+      ],
+      "recommendation": "NOT RECOMMENDED: Outdoor activities strongly discouraged. Stay indoors."
+    },
+    "location": {
+      "region": "Zona Sul (South Zone)",
+      "zone": "South Coast",
+      "latitude": -23.0285,
+      "longitude": -43.1961,
+      "activities": [],
+      "description": ""
+    }
+  }
+]

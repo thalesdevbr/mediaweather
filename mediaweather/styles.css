@@ -46,18 +46,14 @@ body {
     border-radius: 16px;
     box-shadow: var(--shadow);
     overflow: hidden;
+    align-items: stretch;
+    padding: 0;
 }
 
-.map-placeholder {
+#map {
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--light-blue) 0%, #d9e9ff 100%);
-    color: var(--dark-blue);
-    font-weight: 500;
-    font-size: 18px;
+    min-height: 400px;
 }
 
 /* Weather Section (Center) */
@@ -424,4 +420,30 @@ body {
     50% {
         opacity: 0.7;
     }
+}
+
+/* UV Index Badges */
+.uv-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.uv-low { background-color: #d4edda; color: #155724; }
+.uv-moderate { background-color: #fff3cd; color: #856404; }
+.uv-high { background-color: #f0c14b; color: #7d4e00; }
+.uv-very-high { background-color: #f8d7da; color: #721c24; }
+.uv-extreme { background-color: #dc3545; color: white; animation: pulse 2s infinite; }
+
+/* Trend Warning */
+.trend-warning {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #856404;
+    margin: 8px 0;
 }

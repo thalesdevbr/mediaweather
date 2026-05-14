@@ -125,7 +125,9 @@ router.get('/regions', (req, res) => {
         name: name,
         zone: data.zone,
         activities: data.activities,
-        description: data.description
+        description: data.description,
+        latitude: data.latitude,
+        longitude: data.longitude
     }));
     
     res.json({

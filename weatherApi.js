@@ -66,9 +66,9 @@ async function fetchOpenMeteoData(region = 'Zona Sul') {
         const params = new URLSearchParams({
             latitude: coordinates.latitude,
             longitude: coordinates.longitude,
-            current: 'temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation',
-            hourly: 'temperature_2m,precipitation_probability,weather_code',
-            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weather_code',
+            current: 'temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,apparent_temperature',
+            hourly: 'temperature_2m,precipitation_probability,weather_code,uv_index',
+            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weather_code,uv_index_max',
             timezone: 'America/Sao_Paulo'
         });
 
@@ -98,6 +98,8 @@ function parseOpenMeteoData(data, region = 'Zona Sul') {
             temperature: current.temperature_2m,
             humidity: current.relative_humidity_2m,
             windSpeed: current.wind_speed_10m,
+            windGusts: current.wind_gusts_10m,
+            apparentTemperature: current.apparent_temperature,
             precipitation: current.precipitation,
             weatherCode: current.weather_code,
             time: current.time

@@ -16,6 +16,10 @@ const API_BASE_URL = '/api';
 // Current selected region
 let currentRegion = 'Zona Sul';
 
+// Map state
+let map = null;
+const regionMarkers = {};
+
 /**
  * Fetch weather data from backend for a specific region
  */
@@ -61,7 +65,8 @@ function displayWeatherData(weatherData) {
     zoneDisplay.textContent = location.zone;
     activitiesDisplay.textContent = location.activities.join(', ');
     descriptionDisplay.textContent = location.description;
-    
+    updateMapMarker(currentRegion);
+
     console.log('Weather data displayed:', current);
 }
 
@@ -120,15 +125,23 @@ async function fetchAndDisplaySafetyAnalysis(region) {
  */
 function displaySafetyAnalysis(safetyData) {
     console.log('Safety Analysis:', safetyData);
-    
+
     const analysis = safetyData.safetyAnalysis;
     const recommendations = safetyData.activityRecommendations;
-    
+    const uvIndex = safetyData.uvIndex ?? null;
+    const trend = safetyData.trend ?? null;
+
+    const uvLevel = uvIndex !== null
+        ? (uvIndex >= 11 ? 'Extreme' : uvIndex >= 8 ? 'Very High' : uvIndex >= 6 ? 'High' : uvIndex >= 3 ? 'Moderate' : 'Low')
+        : null;
+
     // Create safety info section
     let safetyHTML = `
         <h3>Safety Analysis</h3>
         <p><strong>Risk Level:</strong> <span class="risk-${analysis.riskLevel.toLowerCase()}">${analysis.riskLevel}</span></p>
         <p><strong>Risk Score:</strong> ${analysis.riskScore}/100</p>
+        ${uvLevel ? `<p><strong>UV Index:</strong> <span class="uv-badge uv-${uvLevel.toLowerCase().replace(' ', '-')}">${uvIndex} — ${uvLevel}</span></p>` : ''}
+        ${trend && trend.worsening ? `<p class="trend-warning">&#9888; Rain expected: ${trend.precipitationProbability6h}% probability in next 6h</p>` : ''}
         <p><strong>Recommendation:</strong> ${analysis.recommendation}</p>
     `;
     
@@ -169,6 +182,48 @@ function displayError(message) {
     conditionDisplay.textContent = message;
 }
 
+function initMap(regions) {
+    if (map) return;
+    map = L.map('map', { zoomControl: true }).setView([-23.0, -43.2], 8);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 18
+    }).addTo(map);
+
+    regions.forEach(region => {
+        if (!region.latitude || !region.longitude) return;
+        const marker = L.circleMarker([region.latitude, region.longitude], {
+            radius: 10,
+            fillColor: '#0066cc',
+            color: '#004499',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.8
+        }).addTo(map);
+
+        marker.bindPopup(`<strong>${region.name}</strong><br><em>${region.zone}</em>`);
+        marker.on('click', () => {
+            const btn = [...regionButtons].find(b => b.dataset.region === region.name);
+            if (btn) btn.click();
+        });
+        regionMarkers[region.name] = marker;
+    });
+}
+
+function updateMapMarker(regionName) {
+    if (!map) return;
+    Object.values(regionMarkers).forEach(marker => {
+        marker.setStyle({ fillColor: '#0066cc', radius: 10, fillOpacity: 0.8 });
+        marker.closePopup();
+    });
+    const marker = regionMarkers[regionName];
+    if (marker) {
+        marker.setStyle({ fillColor: '#ff6600', radius: 14, fillOpacity: 1 });
+        marker.openPopup();
+        map.panTo(marker.getLatLng(), { animate: true });
+    }
+}
+
 function bindRegionButtons() {
     regionButtons = document.querySelectorAll('.region-btn');
     regionButtons.forEach(button => {
@@ -189,6 +244,7 @@ async function loadRegions() {
         const result = await response.json();
         if (!result.success) throw new Error('Invalid region response');
 
+        initMap(result.data);
         regionsContainer.innerHTML = result.data.map((region, index) => {
             return `<button class="region-btn${index === 0 ? ' active' : ''}" data-region="${region.name}">${region.name}</button>`;
         }).join('');
