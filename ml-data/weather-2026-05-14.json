@@ -294,5 +294,175 @@
       ],
       "description": "Known for ideal surfing conditions and lakes"
     }
+  },
+  {
+    "timestamp": "2026-05-14T02:47:04.198Z",
+    "weather": {
+      "temperature": 14.4,
+      "humidity": 95,
+      "windSpeed": 2.7,
+      "windGusts": 13,
+      "apparentTemperature": 15.2,
+      "precipitation": 0,
+      "weatherCode": 3,
+      "time": "2026-05-13T23:45"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "High humidity - physical strain"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Ilha Grande",
+      "zone": "South Coast",
+      "latitude": -23.1611,
+      "longitude": -44.203,
+      "activities": [
+        "Beach",
+        "Diving",
+        "Snorkeling",
+        "Hiking"
+      ],
+      "description": "Island paradise with pristine beaches and marine life"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T02:47:07.478Z",
+    "weather": {
+      "temperature": 21.6,
+      "humidity": 91,
+      "windSpeed": 1.8,
+      "windGusts": 7.2,
+      "apparentTemperature": 25.2,
+      "precipitation": 0,
+      "weatherCode": 3,
+      "time": "2026-05-13T23:45"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "High humidity - physical strain"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Zona Sul (South Zone)",
+      "zone": "South Coast",
+      "latitude": -23.0285,
+      "longitude": -43.1961,
+      "activities": [
+        "Beach",
+        "Hiking",
+        "Climbing",
+        "Water Sports"
+      ],
+      "description": "Iconic beaches and mountain trails near the city"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T02:47:10.108Z",
+    "weather": {
+      "temperature": 23,
+      "humidity": 88,
+      "windSpeed": 16.7,
+      "windGusts": 21.6,
+      "apparentTemperature": 24.8,
+      "precipitation": 0,
+      "weatherCode": 3,
+      "time": "2026-05-13T23:45"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "High humidity - physical strain"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Arraial do Cabo",
+      "zone": "East Coast",
+      "latitude": -22.9667,
+      "longitude": -42.0333,
+      "activities": [
+        "Diving",
+        "Snorkeling",
+        "Beach",
+        "Boat Tours"
+      ],
+      "description": "Crystal clear waters and underwater attractions"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T02:47:15.259Z",
+    "weather": {
+      "temperature": 18.9,
+      "humidity": 96,
+      "windSpeed": 2.5,
+      "windGusts": 5.4,
+      "apparentTemperature": 21.6,
+      "precipitation": 0,
+      "weatherCode": 3,
+      "time": "2026-05-13T23:45"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "High humidity - physical strain"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Saquarema",
+      "zone": "Lakes Region",
+      "latitude": -22.9333,
+      "longitude": -42.5,
+      "activities": [
+        "Surfing",
+        "Windsurfing",
+        "Beach",
+        "Kitesurfing"
+      ],
+      "description": "Known for ideal surfing conditions and lakes"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T02:47:18.536Z",
+    "weather": {
+      "temperature": 21.6,
+      "humidity": 91,
+      "windSpeed": 1.8,
+      "windGusts": 7.2,
+      "apparentTemperature": 25.2,
+      "precipitation": 0,
+      "weatherCode": 3,
+      "time": "2026-05-13T23:45"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "High humidity - physical strain"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Zona Sul (South Zone)",
+      "zone": "South Coast",
+      "latitude": -23.0285,
+      "longitude": -43.1961,
+      "activities": [
+        "Beach",
+        "Hiking",
+        "Climbing",
+        "Water Sports"
+      ],
+      "description": "Iconic beaches and mountain trails near the city"
+    }
   }
 ]
