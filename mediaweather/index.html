@@ -21,6 +21,7 @@
             <div class="weather-card">
                 <div class="weather-header">
                     <h1>Weather Details</h1>
+                    <p id="current-date" class="date-display">--</p>
                 </div>
                 <div class="weather-content">
                     <div class="temperature-display">
@@ -40,6 +41,12 @@
         <div class="section cities-section">
             <div class="cities-panel">
                 <h2>Coastal Regions</h2>
+                <div class="search-container">
+                    <label for="region-select">Choose a region</label>
+                    <select id="region-select" class="city-search">
+                        <option value="">Loading regions...</option>
+                    </select>
+                </div>
                 <div class="regions-list">
                     <p>Loading regions...</p>
                 </div>
@@ -52,7 +59,7 @@
                     <small>Weather data provided by WeatherAPI and Open-Meteo</small>
                 </p>
                 <p class="credits">
-                    <small>ML Safety Analysis for Coastal Adventures</small>
+                    <small>Mediaweather the best weather analysis of Rio de Janeiro</small>
                 </p>
             </div>
         </div>
@@ -61,4 +68,4 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
 </body>
-</html>
+</html>s

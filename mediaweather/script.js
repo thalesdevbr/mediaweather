@@ -9,6 +9,7 @@ const windSpeedDisplay = document.getElementById('wind-speed');
 const zoneDisplay = document.getElementById('zone-type');
 const activitiesDisplay = document.getElementById('region-activities');
 const descriptionDisplay = document.getElementById('region-description');
+const dateDisplay = document.getElementById('current-date');
 
 // API Base URL (relative path for same-origin deployment)
 const API_BASE_URL = '/api';
@@ -82,6 +83,20 @@ function displayWeatherData(weatherData) {
     zoneDisplay.textContent = location.zone;
     activitiesDisplay.textContent = location.activities.join(', ');
     descriptionDisplay.textContent = location.description;
+
+    // Update date
+    if (dateDisplay) {
+        const options = {
+            timeZone: 'America/Sao_Paulo',
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+        const formattedDate = new Intl.DateTimeFormat('pt-BR', options).format(new Date());
+        dateDisplay.textContent = `Hoje: ${formattedDate}`;
+    }
+
     updateMapMarker(currentRegion);
 
     console.log('Weather data displayed:', current);
