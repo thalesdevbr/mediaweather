@@ -4,25 +4,17 @@ Um aplicativo inteligente de análise de segurança para atividades costeiras no
 
 ## Regiões Litorâneas Suportadas
 
-1. **Zona Sul** (Padrão) - Copacabana, Ipanema, Leblon
-   - Praias icônicas e trilhas de montanha
-   - Atividades: Beach, Hiking, Climbing, Water Sports
+1. **Rio de Janeiro** (Padrão) - Copacabana, Ipanema, Leblon
+   - Cidade costeira com praias urbanas e litoral icônico
+   - Atividades: Beach, Hiking, Water Sports
 
-2. **Zona Oeste** - Recreio, Barra, Prainha
-   - Excelentes condições para surf
-   - Atividades: Surfing, Beach, Hiking, Water Sports
-
-3. **Saquarema** - Lagos e praias para esportes aquáticos
+2. **Saquarema** - Lagos e praias para esportes aquáticos
    - Região ideal para windsurfe
    - Atividades: Surfing, Windsurfing, Beach, Kitesurfing
 
-4. **Arraial do Cabo** - Águas cristalinas do litoral leste
-   - Paradise para mergulho e snorkel
+3. **Arraial do Cabo** - Águas cristalinas do litoral leste
+   - Paraíso para mergulho e snorkel
    - Atividades: Diving, Snorkeling, Beach, Boat Tours
-
-5. **Ilha Grande** - Ilha paradisíaca na costa sul
-   - Natureza intocada e vida marinha
-   - Atividades: Beach, Diving, Snorkeling, Hiking
 
 ## Arquitetura do Projeto
 
@@ -94,13 +86,13 @@ Lista todas as regiões litorâneas disponíveis.
 Retorna dados meteorológicos atuais de uma região específica.
 
 **Query Parameters:**
-- `region` (string, default: 'Zona Sul') - Nome da região
+- `region` (string, default: 'Rio de Janeiro') - Nome da região
 
 ### GET `/api/safety-analysis?region=<region>`
 Realiza análise completa de segurança e retorna recomendações de atividades.
 
 **Query Parameters:**
-- `region` (string, default: 'Zona Sul') - Nome da região
+- `region` (string, default: 'Rio de Janeiro') - Nome da região
 
 ### GET `/api/risk-assessment?region=<region>`
 Retorna apenas a avaliação de risco detalhada.

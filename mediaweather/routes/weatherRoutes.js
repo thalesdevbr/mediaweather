@@ -120,19 +120,9 @@ router.get('/activity-recommendations', async (req, res) => {
  * Get list of available coastal regions
  */
 router.get('/regions', (req, res) => {
-    const regions = weatherApi.COASTAL_REGIONS;
-    const regionsList = Object.entries(regions).map(([name, data]) => ({
-        name: name,
-        zone: data.zone,
-        activities: data.activities,
-        description: data.description,
-        latitude: data.latitude,
-        longitude: data.longitude
-    }));
-    
     res.json({
         success: true,
-        data: regionsList
+        data: weatherApi.getRegionsList()
     });
 });
 
