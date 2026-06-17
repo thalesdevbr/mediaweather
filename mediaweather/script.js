@@ -14,7 +14,7 @@ const descriptionDisplay = document.getElementById('region-description');
 const API_BASE_URL = '/api';
 
 // Current selected region
-let currentRegion = 'Zona Sul';
+let currentRegion = 'Rio de Janeiro';
 
 // Map state
 let map = null;
@@ -66,16 +66,22 @@ function displayWeatherData(weatherData) {
     const location = weatherData.location;
     
     // Update temperature
-    tempDisplay.textContent = `${Math.round(current.temperature)}°C`;
+    tempDisplay.textContent = current.temperature !== null && current.temperature !== undefined
+        ? `${Math.round(current.temperature)}°C`
+        : '--°C';
     
     // Update weather condition
-    conditionDisplay.textContent = getWeatherDescription(current.weatherCode);
+    conditionDisplay.textContent = current.condition || getWeatherDescription(current.weatherCode) || '--';
     
     // Update humidity
-    humidityDisplay.textContent = `${Math.round(current.humidity)}%`;
+    humidityDisplay.textContent = current.humidity !== null && current.humidity !== undefined
+        ? `${Math.round(current.humidity)}%`
+        : '--';
     
     // Update wind speed
-    windSpeedDisplay.textContent = `${Math.round(current.windSpeed)} km/h`;
+    windSpeedDisplay.textContent = current.windSpeed !== null && current.windSpeed !== undefined
+        ? `${Math.round(current.windSpeed)} km/h`
+        : '--';
     
     // Update region info
     cityNameDisplay.textContent = location.region;

@@ -1,31 +1,17 @@
-// Weather API Integration - WeatherAPI and Open-Meteo
-// Provides real-time weather data for Rio de Janeiro coastal regions
+require('dotenv').config();
 
-// Coastal regions of Rio de Janeiro
+const fetch = global.fetch || require('node-fetch');
+const WEATHERAPI_KEY = process.env.WEATHERAPI_KEY;
+const WEATHERAPI_BASE_URL = process.env.WEATHERAPI_BASE_URL || 'https://api.weatherapi.com/v1';
+
 const COASTAL_REGIONS = {
-    'Ilha Grande': {
-        latitude: -23.1611,
-        longitude: -44.2030,
-        region: 'Ilha Grande',
+    'Rio de Janeiro': {
+        latitude: -22.9068,
+        longitude: -43.1729,
+        region: 'Rio de Janeiro',
         zone: 'South Coast',
-        activities: ['Beach', 'Diving', 'Snorkeling', 'Hiking'],
-        description: 'Island paradise with pristine beaches and marine life'
-    },
-    'Zona Oeste': {
-        latitude: -23.0265,
-        longitude: -43.6253,
-        region: 'Zona Oeste (West Zone)',
-        zone: 'West Coast',
-        activities: ['Surfing', 'Beach', 'Hiking', 'Water Sports'],
-        description: 'West zone with great waves and beautiful beaches'
-    },
-    'Zona Sul': {
-        latitude: -23.0285,
-        longitude: -43.1961,
-        region: 'Zona Sul (South Zone)',
-        zone: 'South Coast',
-        activities: ['Beach', 'Hiking', 'Climbing', 'Water Sports'],
-        description: 'Iconic beaches and mountain trails near the city'
+        activities: ['Beach', 'Hiking', 'Water Sports'],
+        description: 'City beaches and iconic coastal neighborhoods'
     },
     'Saquarema': {
         latitude: -22.9333,
@@ -45,9 +31,6 @@ const COASTAL_REGIONS = {
     }
 };
 
-/**
- * Get coordinates for a specific region
- */
 function getRegionCoordinates(region) {
     const regionData = COASTAL_REGIONS[region];
     if (!regionData) {
@@ -56,28 +39,20 @@ function getRegionCoordinates(region) {
     return regionData;
 }
 
-/**
- * Fetch weather data from Open-Meteo (free, no API key needed)
- */
-async function fetchOpenMeteoData(region = 'Zona Sul') {
+async function fetchOpenMeteoData(region = 'Rio de Janeiro') {
     try {
         const coordinates = getRegionCoordinates(region);
-        
         const params = new URLSearchParams({
             latitude: coordinates.latitude,
             longitude: coordinates.longitude,
-            current: 'temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,apparent_temperature',
-            hourly: 'temperature_2m,precipitation_probability,weather_code,uv_index',
-            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weather_code,uv_index_max',
+            current_weather: 'true',
+            hourly: 'temperature_2m,relativehumidity_2m,precipitation,precipitation_probability,weathercode,wind_speed_10m,wind_gusts_10m,uv_index',
+            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode,uv_index_max',
             timezone: 'America/Sao_Paulo'
         });
 
-        const response = await fetch(
-            `https://api.open-meteo.com/v1/forecast?${params}`
-        );
-        
-        if (!response.ok) throw new Error('Open-Meteo API error');
-        
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
+        if (!response.ok) throw new Error(`Open-Meteo API error: ${response.status} ${response.statusText}`);
         return await response.json();
     } catch (error) {
         console.error('Error fetching Open-Meteo data:', error);
@@ -85,27 +60,29 @@ async function fetchOpenMeteoData(region = 'Zona Sul') {
     }
 }
 
-/**
- * Parse Open-Meteo data into standardized format
- */
-function parseOpenMeteoData(data, region = 'Zona Sul') {
-    const current = data.current;
+function parseOpenMeteoData(data, region = 'Rio de Janeiro') {
     const regionData = getRegionCoordinates(region);
-    
+    const currentWeather = data.current_weather || {};
+    const hourly = data.hourly || {};
+    const currentIndex = Array.isArray(hourly.time)
+        ? hourly.time.findIndex(time => time === currentWeather.time)
+        : -1;
+
     return {
         source: 'open-meteo',
         current: {
-            temperature: current.temperature_2m,
-            humidity: current.relative_humidity_2m,
-            windSpeed: current.wind_speed_10m,
-            windGusts: current.wind_gusts_10m,
-            apparentTemperature: current.apparent_temperature,
-            precipitation: current.precipitation,
-            weatherCode: current.weather_code,
-            time: current.time
+            temperature: currentWeather.temperature ?? null,
+            humidity: currentIndex >= 0 ? hourly.relativehumidity_2m?.[currentIndex] ?? null : null,
+            windSpeed: currentWeather.windspeed ?? null,
+            windGusts: currentIndex >= 0 ? hourly.wind_gusts_10m?.[currentIndex] ?? null : null,
+            apparentTemperature: currentIndex >= 0 ? hourly.temperature_2m?.[currentIndex] ?? null : currentWeather.temperature ?? null,
+            precipitation: currentIndex >= 0 ? hourly.precipitation?.[currentIndex] ?? null : null,
+            weatherCode: currentWeather.weathercode ?? null,
+            condition: getWeatherDescription(currentWeather.weathercode),
+            time: currentWeather.time ?? null
         },
-        hourly: data.hourly,
-        daily: data.daily,
+        hourly: hourly,
+        daily: data.daily || {},
         location: {
             region: regionData.region,
             zone: regionData.zone,
@@ -118,24 +95,138 @@ function parseOpenMeteoData(data, region = 'Zona Sul') {
     };
 }
 
-/**
- * Get weather data for a specific region
- */
-async function getWeatherData(region = 'Zona Sul') {
+async function fetchWeatherAPIData(region = 'Rio de Janeiro') {
+    if (!WEATHERAPI_KEY) {
+        console.warn('WEATHERAPI_KEY is not configured. WeatherAPI data will be skipped.');
+        return null;
+    }
+
     try {
-        const meteoData = await fetchOpenMeteoData(region);
-        const parsedData = parseOpenMeteoData(meteoData, region);
-        return parsedData;
+        const coordinates = getRegionCoordinates(region);
+        const params = new URLSearchParams({
+            key: WEATHERAPI_KEY,
+            q: `${coordinates.latitude},${coordinates.longitude}`,
+            aqi: 'no'
+        });
+
+        const response = await fetch(`${WEATHERAPI_BASE_URL}/current.json?${params}`);
+        if (!response.ok) {
+            throw new Error(`WeatherAPI error: ${response.status} ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching WeatherAPI data:', error);
+        return null;
+    }
+}
+
+function parseWeatherAPIData(data, region = 'Rio de Janeiro') {
+    const regionData = getRegionCoordinates(region);
+    const current = data.current || {};
+
+    return {
+        source: 'weatherapi',
+        current: {
+            temperature: current.temp_c ?? null,
+            humidity: current.humidity ?? null,
+            windSpeed: current.wind_kph ?? null,
+            windGusts: current.gust_kph ?? null,
+            apparentTemperature: current.feelslike_c ?? null,
+            precipitation: current.precip_mm ?? null,
+            weatherCode: current.condition?.code ?? null,
+            condition: current.condition?.text ?? null,
+            time: current.last_updated ?? null
+        },
+        location: {
+            region: regionData.region,
+            zone: regionData.zone,
+            latitude: regionData.latitude,
+            longitude: regionData.longitude,
+            activities: regionData.activities,
+            description: regionData.description
+        },
+        timestamp: new Date().toISOString()
+    };
+}
+
+function averageWeatherData(openMeteoData, weatherApiData) {
+    const sources = [openMeteoData, weatherApiData].filter(Boolean);
+    if (sources.length === 0) {
+        throw new Error('No weather sources available to calculate averages.');
+    }
+
+    const average = valueKey => {
+        const values = sources
+            .map(source => source.current[valueKey])
+            .filter(value => typeof value === 'number');
+        return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+    };
+
+    const openMeteoCode = openMeteoData?.current?.weatherCode;
+    const openMeteoCondition = openMeteoData?.current?.condition;
+    const weatherApiCondition = weatherApiData?.current?.condition;
+
+    return {
+        source: 'average',
+        current: {
+            temperature: average('temperature'),
+            humidity: average('humidity'),
+            windSpeed: average('windSpeed'),
+            windGusts: average('windGusts'),
+            apparentTemperature: average('apparentTemperature'),
+            precipitation: average('precipitation'),
+            weatherCode: openMeteoCode ?? weatherApiData?.current?.weatherCode ?? null,
+            condition: weatherApiCondition || openMeteoCondition || getWeatherDescription(openMeteoCode),
+            time: openMeteoData?.current?.time || weatherApiData?.current?.time || null
+        },
+        hourly: openMeteoData?.hourly || {},
+        daily: openMeteoData?.daily || {},
+        location: openMeteoData?.location || weatherApiData?.location,
+        sources: sources.map(source => source.source),
+        timestamp: new Date().toISOString()
+    };
+}
+
+async function getWeatherData(region = 'Rio de Janeiro') {
+    try {
+        const [openMeteoRaw, weatherApiRaw] = await Promise.all([
+            fetchOpenMeteoData(region),
+            fetchWeatherAPIData(region)
+        ]);
+
+        const openMeteoParsed = parseOpenMeteoData(openMeteoRaw, region);
+        const weatherApiParsed = weatherApiRaw ? parseWeatherAPIData(weatherApiRaw, region) : null;
+
+        if (weatherApiParsed) {
+            return averageWeatherData(openMeteoParsed, weatherApiParsed);
+        }
+
+        return openMeteoParsed;
     } catch (error) {
         console.error('Failed to fetch weather data:', error);
         throw error;
     }
 }
 
+function getRegionsList() {
+    return Object.entries(COASTAL_REGIONS).map(([name, data]) => ({
+        name,
+        zone: data.zone,
+        activities: data.activities,
+        description: data.description,
+        latitude: data.latitude,
+        longitude: data.longitude
+    }));
+}
+
 module.exports = {
     getWeatherData,
     fetchOpenMeteoData,
     parseOpenMeteoData,
+    fetchWeatherAPIData,
+    parseWeatherAPIData,
+    averageWeatherData,
     getRegionCoordinates,
+    getRegionsList,
     COASTAL_REGIONS
 };
