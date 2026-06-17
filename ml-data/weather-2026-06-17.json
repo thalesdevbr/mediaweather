@@ -1,0 +1,140 @@
+[
+  {
+    "timestamp": "2026-06-17T00:40:15.603Z",
+    "weather": {
+      "temperature": 19.4,
+      "humidity": null,
+      "windSpeed": 7.6,
+      "windGusts": null,
+      "apparentTemperature": 19.4,
+      "precipitation": null,
+      "weatherCode": 51,
+      "condition": "Light drizzle",
+      "time": "2026-06-16T21:30"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "Worsening conditions expected (87% rain probability next 6h)"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Rio de Janeiro",
+      "zone": "South Coast",
+      "latitude": -22.9068,
+      "longitude": -43.1729,
+      "activities": [
+        "Beach",
+        "Hiking",
+        "Water Sports"
+      ],
+      "description": "City beaches and iconic coastal neighborhoods"
+    }
+  },
+  {
+    "timestamp": "2026-06-17T00:40:33.081Z",
+    "weather": {
+      "temperature": 19.4,
+      "humidity": null,
+      "windSpeed": 7.6,
+      "windGusts": null,
+      "apparentTemperature": 19.4,
+      "precipitation": null,
+      "weatherCode": 51,
+      "condition": "Light drizzle",
+      "time": "2026-06-16T21:30"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "Worsening conditions expected (87% rain probability next 6h)"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Rio de Janeiro",
+      "zone": "South Coast",
+      "latitude": -22.9068,
+      "longitude": -43.1729,
+      "activities": [
+        "Beach",
+        "Hiking",
+        "Water Sports"
+      ],
+      "description": "City beaches and iconic coastal neighborhoods"
+    }
+  },
+  {
+    "timestamp": "2026-06-17T00:40:57.000Z",
+    "weather": {
+      "temperature": 19.6,
+      "humidity": null,
+      "windSpeed": 4.1,
+      "windGusts": null,
+      "apparentTemperature": 19.6,
+      "precipitation": null,
+      "weatherCode": 3,
+      "condition": "Overcast",
+      "time": "2026-06-16T21:30"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "Worsening conditions expected (77% rain probability next 6h)"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Saquarema",
+      "zone": "Lakes Region",
+      "latitude": -22.9333,
+      "longitude": -42.5,
+      "activities": [
+        "Surfing",
+        "Windsurfing",
+        "Beach",
+        "Kitesurfing"
+      ],
+      "description": "Known for ideal surfing conditions and lakes"
+    }
+  },
+  {
+    "timestamp": "2026-06-17T00:41:03.661Z",
+    "weather": {
+      "temperature": 21.1,
+      "humidity": null,
+      "windSpeed": 17.2,
+      "windGusts": null,
+      "apparentTemperature": 21.1,
+      "precipitation": null,
+      "weatherCode": 3,
+      "condition": "Overcast",
+      "time": "2026-06-16T21:30"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "Worsening conditions expected (67% rain probability next 6h)"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Arraial do Cabo",
+      "zone": "East Coast",
+      "latitude": -22.9667,
+      "longitude": -42.0333,
+      "activities": [
+        "Diving",
+        "Snorkeling",
+        "Beach",
+        "Boat Tours"
+      ],
+      "description": "Crystal clear waters and underwater attractions"
+    }
+  }
+]
