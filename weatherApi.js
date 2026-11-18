@@ -81,6 +81,7 @@ async function fetchOpenMeteoData(region = 'Rio de Janeiro') {
             current_weather: 'true',
             hourly: 'temperature_2m,relativehumidity_2m,precipitation,precipitation_probability,weathercode,wind_speed_10m,wind_gusts_10m,uv_index',
             daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode,uv_index_max',
+            forecast_days: 15,
             timezone: 'America/Sao_Paulo'
         });
 
@@ -93,6 +94,80 @@ async function fetchOpenMeteoData(region = 'Rio de Janeiro') {
     }
 }
 
+/**
+ * Calculate daily averages for 15-day forecast from Open-Meteo API
+ * Computes statistics across all 15 days of daily forecast data
+ */
+function calculateDailyAverages(dailyForecastData = {}, days = 15) {
+    const daily = Array.isArray(dailyForecastData) ? dailyForecastData : Object.values(dailyForecastData).filter(Boolean);
+    const filteredDaily = daily.slice(0, days);
+    
+    if (filteredDaily.length === 0) {
+        return null;
+    }
+    
+    const count = filteredDaily.length;
+    
+    // Temperature statistics
+    const tempMaxValues = filteredDaily
+        .map(d => d.temperature_2m_max)
+        .filter(v => typeof v === 'number');
+    const tempMinValues = filteredDaily
+        .map(d => d.temperature_2m_min)
+        .filter(v => typeof v === 'number');
+    
+    // Precipitation statistics
+    const precipValues = filteredDaily
+        .map(d => d.precipitation_sum)
+        .filter(v => typeof v === 'number');
+    
+    // Wind speed statistics
+    const windSpeedMaxValues = filteredDaily
+        .map(d => d.wind_speed_10m_max)
+        .filter(v => typeof v === 'number');
+    
+    // UV index statistics
+    const uvIndexMaxValues = filteredDaily
+        .map(d => d.uv_index_max)
+        .filter(v => typeof v === 'number');
+    
+    // Weather code statistics
+    const weatherCodeValues = filteredDaily.map(d => d.weathercode);
+    
+    // Helper function to calculate average of array values
+    const averageOf = arr => {
+        const filtered = arr.filter(v => typeof v === 'number');
+        return filtered.length ? filtered.reduce((sum, value) => sum + value, 0) / filtered.length : null;
+    };
+    
+    // Count wet days (precipitation > 0)
+    const wetDays = precipValues.filter(v => v > 0).length;
+    const precipitationProbability = wetDays / count;
+    
+    return {
+        source: 'daily-averages',
+        numberOfDays: count,
+        statistics: {
+            averageTemperatureMax: roundToOneDecimal(averageOf(tempMaxValues)),
+            averageTemperatureMin: roundToOneDecimal(averageOf(tempMinValues)),
+            averagePrecipitation: roundToOneDecimal(averageOf(precipValues)),
+            averageWindSpeedMax: roundToOneDecimal(averageOf(windSpeedMaxValues)),
+            averageUVIndexMax: roundToOneDecimal(averageOf(uvIndexMaxValues)),
+            wetDayCount: wetDays,
+            wetDayPercentage: Math.round((precipitationProbability * 100) * 10) / 10,
+            averageWeatherCodes: getWeatherDescription(
+                weatherCodeValues.filter(Number).reduce((sum, code) => sum + code, 0) / weatherCodeValues.length
+            )
+        },
+        timestamp: new Date().toISOString()
+    };
+}
+
+function roundToOneDecimal(num) {
+    if (num === null || num === undefined) return null;
+    return Math.round(num * 10) / 10;
+}
+
 function parseOpenMeteoData(data, region = 'Rio de Janeiro') {
     const regionData = getRegionCoordinates(region);
     const currentWeather = data.current_weather || {};
@@ -100,6 +175,20 @@ function parseOpenMeteoData(data, region = 'Rio de Janeiro') {
     const currentIndex = Array.isArray(hourly.time)
         ? hourly.time.findIndex(time => time === currentWeather.time)
         : -1;
+
+    const dailyArray = data.daily && Array.isArray(data.daily.time)
+        ? data.daily.time.map((time, index) => ({
+            time,
+            temperature_2m_max: data.daily.temperature_2m_max?.[index] ?? null,
+            temperature_2m_min: data.daily.temperature_2m_min?.[index] ?? null,
+            precipitation_sum: data.daily.precipitation_sum?.[index] ?? null,
+            wind_speed_10m_max: data.daily.wind_speed_10m_max?.[index] ?? null,
+            weathercode: data.daily.weathercode?.[index] ?? null,
+            uv_index_max: data.daily.uv_index_max?.[index] ?? null
+        }))
+        : [];
+
+    const dailyAverages = calculateDailyAverages(dailyArray, 15);
 
     return {
         source: 'open-meteo',
@@ -116,6 +205,7 @@ function parseOpenMeteoData(data, region = 'Rio de Janeiro') {
         },
         hourly: hourly,
         daily: data.daily || {},
+        dailyAverages: dailyAverages,
         location: {
             region: regionData.region,
             zone: regionData.zone,
@@ -199,6 +289,23 @@ function averageWeatherData(openMeteoData, weatherApiData) {
     const openMeteoCondition = openMeteoData?.current?.condition;
     const weatherApiCondition = weatherApiData?.current?.condition;
 
+    const averagedDailyAverages = openMeteoData?.dailyAverages
+        ? {
+            source: 'average-daily',
+            numberOfDays: openMeteoData.dailyAverages.numberOfDays,
+            statistics: {
+                averageTemperatureMax: openMeteoData.dailyAverages.statistics.averageTemperatureMax,
+                averageTemperatureMin: openMeteoData.dailyAverages.statistics.averageTemperatureMin,
+                averagePrecipitation: openMeteoData.dailyAverages.statistics.averagePrecipitation,
+                averageWindSpeedMax: openMeteoData.dailyAverages.statistics.averageWindSpeedMax,
+                averageUVIndexMax: openMeteoData.dailyAverages.statistics.averageUVIndexMax,
+                wetDayCount: openMeteoData.dailyAverages.statistics.wetDayCount,
+                wetDayPercentage: openMeteoData.dailyAverages.statistics.wetDayPercentage,
+                averageWeatherCodes: openMeteoData.dailyAverages.statistics.averageWeatherCodes
+            }
+        }
+        : null;
+
     return {
         source: 'average',
         current: {
@@ -214,6 +321,7 @@ function averageWeatherData(openMeteoData, weatherApiData) {
         },
         hourly: openMeteoData?.hourly || {},
         daily: openMeteoData?.daily || {},
+        dailyAverages: averagedDailyAverages,
         location: openMeteoData?.location || weatherApiData?.location,
         sources: sources.map(source => source.source),
         timestamp: new Date().toISOString()

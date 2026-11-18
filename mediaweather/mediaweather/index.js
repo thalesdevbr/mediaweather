@@ -6,6 +6,16 @@ const path = require('path');
 
 // Import weather and ML routes
 const weatherRoutes = require('../routes/weatherRoutes');
+const reportRoutes = require('../routes/reportRoutes');
+const apiAccuracyTracker = require('../lib/apiAccuracyTracker');
+
+// Inicializa Firebase Admin para relatórios de precisão
+try {
+    const firebaseDb = apiAccuracyTracker.initFirebase('mediaweather-d72ab');
+    console.log('✅ Firebase Admin inicializado para relatórios de precisão');
+} catch (err) {
+    console.warn('⚠️ Firebase Admin não inicializado. Relatórios de precisão podem não funcionar. Erro:', err.message);
+}
 
 const app = express();
 app.use(cors());
@@ -14,20 +24,19 @@ app.use(express.json());
 // Serve static files
 app.use(express.static(path.join(__dirname)));
 
-// TODO: Configurar Firebase Admin SDK quando necessário
-// const { initializeApp, applicationDefault } = require('firebase-admin/app');
-// initializeApp({
-//   credential: applicationDefault(),
-//   databaseURL: 'https://<YOUR_PROJECT_ID>.firebaseio.com'
-// });
-
 // Health check
 app.get('/', (req, res) => {
-  res.send('MediaWeather API - Rio de Janeiro Focus. Use /api/weather, /api/safety-analysis, /api/trail-recommendations');
+  res.send('MediaWeather API - Rio de Janeiro Focus. Use /api/weather, /api/safety-analysis, /api/trail-recommendations, /api/reports/accuracy');
 });
 
 // Weather and Safety Analysis API Routes
 app.use('/api', weatherRoutes);
+
+// Accuracy and Analytics API Routes
+app.use('/api/reports', reportRoutes);
+
+// Initialize API Accuracy Tracker (Firebase will be initialized in lib)
+// const apiAccuracyTracker = require('./lib/apiAccuracyTracker');
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

@@ -1,0 +1,105 @@
+[
+  {
+    "timestamp": "2026-11-18T13:58:28.069Z",
+    "weather": {
+      "temperature": 27.4,
+      "humidity": null,
+      "windSpeed": 12.2,
+      "windGusts": null,
+      "apparentTemperature": 27.4,
+      "precipitation": null,
+      "weatherCode": 0,
+      "condition": "Céu limpo",
+      "time": "2026-11-18T10:45"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "Very high UV index (9.3) - sun protection essential"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Rio de Janeiro",
+      "zone": "South Coast",
+      "latitude": -22.9068,
+      "longitude": -43.1729,
+      "activities": [
+        "Beach",
+        "Hiking",
+        "Water Sports"
+      ],
+      "description": "City beaches and iconic coastal neighborhoods"
+    }
+  },
+  {
+    "timestamp": "2026-11-18T14:38:25.875Z",
+    "weather": {
+      "temperature": 27,
+      "humidity": null,
+      "windSpeed": 15.4,
+      "windGusts": null,
+      "apparentTemperature": 27,
+      "precipitation": null,
+      "weatherCode": 0,
+      "condition": "Céu limpo",
+      "time": "2026-11-18T11:30"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "Very high UV index (9.3) - sun protection essential"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Rio de Janeiro",
+      "zone": "South Coast",
+      "latitude": -22.9068,
+      "longitude": -43.1729,
+      "activities": [
+        "Beach",
+        "Hiking",
+        "Water Sports"
+      ],
+      "description": "City beaches and iconic coastal neighborhoods"
+    }
+  },
+  {
+    "timestamp": "2026-11-18T14:39:15.428Z",
+    "weather": {
+      "temperature": 27.5,
+      "humidity": null,
+      "windSpeed": 15.5,
+      "windGusts": null,
+      "apparentTemperature": 27.5,
+      "precipitation": null,
+      "weatherCode": 0,
+      "condition": "Céu limpo",
+      "time": "2026-11-18T11:30"
+    },
+    "riskAssessment": {
+      "riskScore": 10,
+      "riskLevel": "LOW",
+      "factors": [
+        "Very high UV index (8.7) - sun protection essential"
+      ],
+      "recommendation": "SAFE: Good conditions for most outdoor activities."
+    },
+    "location": {
+      "region": "Saquarema",
+      "zone": "Lakes Region",
+      "latitude": -22.9333,
+      "longitude": -42.5,
+      "activities": [
+        "Surfing",
+        "Windsurfing",
+        "Beach",
+        "Kitesurfing"
+      ],
+      "description": "Known for ideal surfing conditions and lakes"
+    }
+  }
+]

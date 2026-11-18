@@ -47,8 +47,9 @@ async function fetchOpenMeteoData(region = 'Rio de Janeiro') {
             longitude: coordinates.longitude,
             current_weather: 'true',
             hourly: 'temperature_2m,relativehumidity_2m,precipitation,precipitation_probability,weathercode,wind_speed_10m,wind_gusts_10m,uv_index',
-            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weathercode,uv_index_max',
-            timezone: 'America/Sao_Paulo'
+            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,weathercode,uv_index_max',
+            timezone: 'America/Sao_Paulo',
+            forecast_days: 16
         });
 
         const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
@@ -83,6 +84,7 @@ function parseOpenMeteoData(data, region = 'Rio de Janeiro') {
         },
         hourly: hourly,
         daily: data.daily || {},
+        forecast15: parseDailyForecast(data.daily || {}),
         location: {
             region: regionData.region,
             zone: regionData.zone,
@@ -93,6 +95,86 @@ function parseOpenMeteoData(data, region = 'Rio de Janeiro') {
         },
         timestamp: new Date().toISOString()
     };
+}
+
+/**
+ * Parser da previsão diária estendida (máximo 15 dias) do Open-Meteo
+ * Retorna array de objetos com data, temp_min, temp_max, precipitação, vento, código do tempo, UV
+ */
+function parseDailyForecast(daily = {}) {
+    const times = daily.time || [];
+    const forecasts = [];
+
+    // Incluir dia de hoje (índice 0) como primeiro elemento
+    for (let i = 0; i < times.length && forecasts.length < 15; i++) {
+        forecasts.push({
+            date: times[i],
+            dayLabel: getDayLabel(times[i]),
+            tempMin: daily.temperature_2m_min?.[i] ?? null,
+            tempMax: daily.temperature_2m_max?.[i] ?? null,
+            precipitation: daily.precipitation_sum?.[i] ?? null,
+            precipitationProbability: daily.precipitation_probability_max?.[i] ?? null,
+            windSpeed: daily.wind_speed_10m_max?.[i] ?? null,
+            weatherCode: daily.weathercode?.[i] ?? null,
+            condition: getWeatherDescription(daily.weathercode?.[i] ?? null),
+            uvIndex: daily.uv_index_max?.[i] ?? null,
+            isToday: i === 0
+        });
+    }
+
+    return forecasts;
+}
+
+function getDayLabel(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr + 'T00:00:00');
+    const now = new Date();
+    const diffDays = Math.round((date - now) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Hoje';
+    if (diffDays === 1) return 'Amanhã';
+
+    const ptBR = new Intl.DateTimeFormat('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' });
+    return ptBR.format(date);
+}
+
+/**
+ * Obtém descrição textual do código WMO de clima
+ * @param {number|null} code
+ */
+function getWeatherDescription(code) {
+    if (code === null || code === undefined) return '--';
+    const codes = {
+        0: 'Céu limpo',
+        1: 'Principalmente limpo',
+        2: 'Parcialmente nublado',
+        3: 'Nublado',
+        45: 'Nevoeiro',
+        48: 'Nevoeiro com geada',
+        51: 'Chuva fraca',
+        53: 'Chuva moderada',
+        55: 'Chuva forte',
+        56: 'Chuva congelante fraca',
+        57: 'Chuva congelante forte',
+        61: 'Chuva fraca',
+        63: 'Chuva moderada',
+        65: 'Chuva forte',
+        66: 'Chuva congelante fraca',
+        67: 'Chuva congelante forte',
+        71: 'Neve fraca',
+        73: 'Neve moderada',
+        75: 'Neve forte',
+        77: 'Neve fina',
+        80: 'Pancadas de chuva fracas',
+        81: 'Pancadas de chuva moderadas',
+        82: 'Pancadas de chuva fortes',
+        85: 'Pancadas de neve fracas',
+        86: 'Pancadas de neve fortes',
+        95: 'Trovoada',
+        96: 'Trovoada com granizo leve',
+        99: 'Trovoada com granizo forte'
+    };
+    return codes[code] || 'Condição desconhecida';
 }
 
 async function fetchWeatherAPIData(region = 'Rio de Janeiro') {
@@ -181,6 +263,7 @@ function averageWeatherData(openMeteoData, weatherApiData) {
         },
         hourly: openMeteoData?.hourly || {},
         daily: openMeteoData?.daily || {},
+        forecast15: openMeteoData?.forecast15 || [],
         location: openMeteoData?.location || weatherApiData?.location,
         sources: sources.map(source => source.source),
         timestamp: new Date().toISOString()
@@ -198,7 +281,22 @@ async function getWeatherData(region = 'Rio de Janeiro') {
         const weatherApiParsed = weatherApiRaw ? parseWeatherAPIData(weatherApiRaw, region) : null;
 
         if (weatherApiParsed) {
-            return averageWeatherData(openMeteoParsed, weatherApiParsed);
+            const avg = averageWeatherData(openMeteoParsed, weatherApiParsed);
+            // Registro não bloqueante de avaliação de precisão (chuva + vento)
+            setImmediate(async () => {
+                try {
+                    const apiAccuracyTracker = require('./lib/apiAccuracyTracker');
+                    const evaluation = {
+                        openMeteo: apiAccuracyTracker.evaluateApiAccuracy(openMeteoParsed, avg.current, apiAccuracyTracker.DEFAULT_TOLERANCES),
+                        weatherApi: apiAccuracyTracker.evaluateApiAccuracy(weatherApiParsed, avg.current, apiAccuracyTracker.DEFAULT_TOLERANCES),
+                        average: apiAccuracyTracker.evaluateApiAccuracy(avg, avg.current, apiAccuracyTracker.DEFAULT_TOLERANCES)
+                    };
+                    await apiAccuracyTracker.recordAccuracyEvaluation(region, evaluation, { source: 'getWeatherData' });
+                } catch (evalErr) {
+                    console.warn('Accuracy evaluation skipped:', evalErr.message);
+                }
+            });
+            return avg;
         }
 
         return openMeteoParsed;
@@ -228,5 +326,8 @@ module.exports = {
     averageWeatherData,
     getRegionCoordinates,
     getRegionsList,
+    parseDailyForecast,
+    getDayLabel,
+    getWeatherDescription,
     COASTAL_REGIONS
 };

@@ -34,6 +34,7 @@ async function fetchWeatherData(region) {
         const result = await response.json();
         if (result.success) {
             displayWeatherData(result.data);
+            displayExtendedForecast(result.data.forecast15 || []);
             await fetchAndDisplaySafetyAnalysis(region);
         }
     } catch (error) {
@@ -205,6 +206,58 @@ function displayError(message) {
     conditionDisplay.textContent = message;
 }
 
+/**
+ * Renderiza a previsão estendida de 15 dias
+ * @param {Array} forecast15 - Array de dias com date, tempMin, tempMax, precipitation, windSpeed, condition
+ */
+function displayExtendedForecast(forecast15) {
+    const container = document.getElementById('forecast-scroll');
+    if (!container) return;
+
+    if (!Array.isArray(forecast15) || forecast15.length === 0) {
+        container.innerHTML = '<p class="forecast-empty">Previsão estendida indisponível no momento.</p>';
+        return;
+    }
+
+    const weatherEmoji = code => {
+        if (code === 0) return '☀️';
+        if (code === 1) return '🌤️';
+        if (code === 2) return '⛅';
+        if (code === 3) return '☁️';
+        if (code >= 45 && code <= 48) return '🌫️';
+        if (code >= 51 && code <= 67) return '🌧️';
+        if (code >= 71 && code <= 77) return '❄️';
+        if (code >= 80 && code <= 82) return '🌦️';
+        if (code >= 95) return '⛈️';
+        return '☁️';
+    };
+
+    container.innerHTML = forecast15.map(day => {
+        const max = day.tempMax !== null && day.tempMax !== undefined ? Math.round(day.tempMax) : '--';
+        const min = day.tempMin !== null && day.tempMin !== undefined ? Math.round(day.tempMin) : '--';
+        const rain = day.precipitation !== null && day.precipitation !== undefined ? day.precipitation.toFixed(1) : '0';
+        const wind = day.windSpeed !== null && day.windSpeed !== undefined ? Math.round(day.windSpeed) : '--';
+        const prob = day.precipitationProbability !== null && day.precipitationProbability !== undefined ? Math.round(day.precipitationProbability) : '--';
+        const condition = day.condition || '--';
+        const emoji = weatherEmoji(day.weatherCode);
+
+        return `
+            <div class="forecast-day${day.isToday ? ' forecast-today' : ''}">
+                <div class="forecast-date">${day.dayLabel || day.date}</div>
+                <div class="forecast-emoji">${emoji}</div>
+                <div class="forecast-condition" title="${condition}">${condition}</div>
+                <div class="forecast-temps">
+                    <span class="temp-max">${max}°</span>
+                    <span class="temp-min">${min}°</span>
+                </div>
+                <div class="forecast-detail">🌧️ ${rain} mm</div>
+                <div class="forecast-detail">💧 ${prob}%</div>
+                <div class="forecast-detail">💨 ${wind} km/h</div>
+            </div>
+        `;
+    }).join('');
+}
+
 function initMap(regions) {
     if (map) return;
     map = L.map('map', { zoomControl: true }).setView([-23.0, -43.2], 8);
@@ -285,3 +338,7 @@ async function loadRegions() {
 }
 
 loadRegions();
+
+// ====================
+// Previsão Estendida 15 Dias
+// ====================
